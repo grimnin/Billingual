@@ -30,7 +30,7 @@ class Register : ComponentActivity() {
             performSignUp()
         }
     }
-//tralallal
+
     private fun performSignUp() {
         val email = findViewById<EditText>(R.id.editTextEmailR)
         val password = findViewById<EditText>(R.id.editTextPasswordR)
@@ -63,6 +63,7 @@ class Register : ComponentActivity() {
                         FirebaseFirestore.getInstance().collection("users").document(uid).set(userMap)
                             .addOnSuccessListener {
                                 // Continue with the login code
+                                sendEmailVerification()
                                 val intent = Intent(this, Login::class.java)
                                 startActivity(intent)
                                 Toast.makeText(
@@ -88,4 +89,14 @@ class Register : ComponentActivity() {
                     .show()
             }
     }
-}
+    private fun sendEmailVerification() {
+        val user = auth.currentUser
+        user?.sendEmailVerification()
+            ?.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "Verification email sent to ${user.email}", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Failed to send verification email", Toast.LENGTH_SHORT).show()
+                }
+            }
+}}

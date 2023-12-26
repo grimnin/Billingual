@@ -51,7 +51,7 @@ class Login : ComponentActivity() {
 
         auth.signInWithEmailAndPassword(inputEmail, inputPassword)
             .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
+                if (task.isSuccessful&& auth.currentUser?.isEmailVerified==true) {
                     // Sign in success, navigate to main activity
                     val intent=Intent(this,MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
@@ -60,7 +60,14 @@ class Login : ComponentActivity() {
                         baseContext, "Success.",
                         Toast.LENGTH_SHORT,).show()
 
-                } else {
+                }
+                else if(auth.currentUser?.isEmailVerified==false){
+                    Toast.makeText(
+                        baseContext, "You haven't verify your account via mailbox yet.",
+                        Toast.LENGTH_LONG,).show()
+                }
+
+                else {
                     // If sign in fails, display a message to the user.
 
                     Toast.makeText(baseContext,"Authentication failed.",
