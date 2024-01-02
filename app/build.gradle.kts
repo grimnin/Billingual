@@ -68,12 +68,16 @@ dependencies {
     implementation(libs.androidx.coordinatorlayout)
 
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
 
     // Add the dependency for the Firebase Authentication library
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation("com.google.firebase:firebase-auth")
     implementation(libs.firebase.database.ktx)
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.play.services.auth)
+    implementation(libs.androidx.appcompat)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)

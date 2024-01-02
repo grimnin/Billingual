@@ -1,29 +1,11 @@
 {
   "project_info": {
     "project_number": "566054808175",
+    "firebase_url": "https://billingual-dec33-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "billingual-dec33",
     "storage_bucket": "billingual-dec33.appspot.com"
   },
   "client": [
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:566054808175:android:560a3243c851cfc9d87b9a",
-        "android_client_info": {
-          "package_name": "com.example.billingual"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDVtRhH3iRRH0u5tU-PwXiHDORWKrcyRhM"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
     {
       "client_info": {
         "mobilesdk_app_id": "1:566054808175:android:65908091b75abba2d87b9a",
@@ -31,7 +13,20 @@
           "package_name": "com.example.myapplication"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "566054808175-a1t0q92m4erjcrnmftdfjcqucniitcm9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.myapplication",
+            "certificate_hash": "2ea157945ef19e8c32c52b695232f62745a1abfd"
+          }
+        },
+        {
+          "client_id": "566054808175-3a7mvq6q5k1jm02ap31i1bmcslf8kh9r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDVtRhH3iRRH0u5tU-PwXiHDORWKrcyRhM"
@@ -39,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "566054808175-3a7mvq6q5k1jm02ap31i1bmcslf8kh9r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -28,6 +28,8 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 androidx-coordinatorlayout = { group = "androidx.coordinatorlayout", name = "coordinatorlayout", version = "1.2.0" }
 firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx", version = "20.3.0" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version = "24.10.0" }
+play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version = "20.7.0" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version = "1.6.1" }
 
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "agp" }
