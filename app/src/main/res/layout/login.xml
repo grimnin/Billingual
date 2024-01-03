@@ -53,41 +53,40 @@
 
     <TextView
         android:id="@+id/textView_create_now"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:background="@drawable/rectangle"
+        android:gravity="center"
         android:text="Create account"
         android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="@+id/editTextPasswordL"
         app:layout_constraintStart_toStartOf="@+id/editTextPasswordL"
-        app:layout_constraintTop_toBottomOf="@+id/buttonLoginL"
 
-        />
+        app:layout_constraintTop_toBottomOf="@+id/buttonLoginL" />
 
     <Button
         android:id="@+id/buttonLoginL"
-        android:layout_width="73dp"
-        android:layout_height="35dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:background="@drawable/rectangle"
         android:text="Login"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.501"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/editTextPasswordL"
+        app:layout_constraintStart_toStartOf="@+id/editTextPasswordL"
         app:layout_constraintTop_toBottomOf="@+id/editTextPasswordL" />
 
     <TextView
         android:id="@+id/textViewGoogleL"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:background="@drawable/rectangle"
-        android:paddingLeft="35dp"
-        android:text="Create with Google"
+        android:gravity="center"
+        android:text="Sign in with Google"
         android:textColor="@color/black"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/textView_create_now"
+        app:layout_constraintStart_toStartOf="@+id/textView_create_now"
         app:layout_constraintTop_toBottomOf="@+id/textView_create_now" />
 
     <ImageView
@@ -98,10 +97,24 @@
         android:src="@drawable/googleg_standard_color_18"
         app:layout_constraintBottom_toBottomOf="@+id/textViewGoogleL"
         app:layout_constraintEnd_toEndOf="@+id/textViewGoogleL"
-        app:layout_constraintHorizontal_bias="0.07"
+        app:layout_constraintHorizontal_bias="0.283"
         app:layout_constraintStart_toStartOf="@+id/textViewGoogleL"
         app:layout_constraintTop_toTopOf="@+id/textViewGoogleL"
         app:layout_constraintVertical_bias="1.0" />
+
+    <EditText
+        android:id="@+id/textViewGoogleNick"
+        android:layout_width="273dp"
+        android:layout_height="119dp"
+        android:layout_marginStart="141dp"
+        android:layout_marginEnd="141dp"
+        android:hint="Enter your nick"
+        android:textColorHint="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.233" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

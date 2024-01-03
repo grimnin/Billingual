@@ -19,6 +19,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class Login : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -87,19 +88,46 @@ class Login : ComponentActivity() {
     }
 
     private fun updateUI(account: GoogleSignInAccount) {
-        val credential=GoogleAuthProvider.getCredential(account.idToken,null)
-        auth.signInWithCredential(credential).addOnCompleteListener {
-            if(it.isSuccessful){
-
-                val intent:Intent=Intent(this,MainActivity::class.java)
+        val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+        auth.signInWithCredential(credential).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val intent: Intent = Intent(this, MainActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                 startActivity(intent)
-            }
-            else{
-                Toast.makeText(this,it.exception.toString(),Toast.LENGTH_SHORT).show()
+
+                // Dodaj kod do utworzenia dokumentu w kolekcji "users" przy pierwszym logowaniu
+                val email = account.email
+                if (email != null) {
+                    checkIfUserExistsInDatabase(email) { userExists ->
+                        if (!userExists) {
+                            val userMap = hashMapOf(
+                                "email" to email,
+                                // Dodaj inne informacje o użytkowniku, jeśli są dostępne
+                            )
+
+                            FirebaseFirestore.getInstance().collection("users")
+                                .document(auth.currentUser?.uid ?: "")
+                                .set(userMap)
+                                .addOnSuccessListener {
+                                    // Obsłuż pomyślne utworzenie dokumentu
+                                }
+                                .addOnFailureListener { e ->
+                                    // Obsłuż błąd podczas tworzenia dokumentu
+                                    Toast.makeText(
+                                        baseContext,
+                                        "Error creating user document: ${e.localizedMessage}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                        }
+                    }
+                }
+            } else {
+                Toast.makeText(this, task.exception.toString(), Toast.LENGTH_SHORT).show()
             }
         }
     }
+
 
     private fun preformLogin() {
         val email=findViewById<EditText>(R.id.editTextLoginL)
@@ -147,5 +175,36 @@ class Login : ComponentActivity() {
 
     }
 
+    private fun checkIfUserExistsInDatabase(email: String, callback: (Boolean) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        val usersCollection = db.collection("users")
+
+        // Sprawdź, czy istnieje dokument w kolekcji "users" z podanym adresem e-mail
+        usersCollection
+            .whereEqualTo("email", email)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    // Brak dokumentów oznacza, że użytkownik nie istnieje
+                    // Przekaż wynik (false) do callbacka
+                    callback.invoke(false)
+                } else {
+                    // Dokumenty znalezione, oznacza to, że użytkownik istnieje
+                    // Przekaż wynik (true) do callbacka
+                    callback.invoke(true)
+                }
+            }
+            .addOnFailureListener { exception ->
+                // Obsłuż błąd podczas sprawdzania istnienia użytkownika
+                Toast.makeText(
+                    baseContext,
+                    "Error checking user existence: ${exception.localizedMessage}",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                // W przypadku błędu przekaż wynik (false) do callbacka
+                callback.invoke(false)
+            }
+    }
 
 }

@@ -22,6 +22,7 @@ class Register : ComponentActivity() {
         val switchToLogin: Button = findViewById(R.id.buttonSwitchToLoginR)
         switchToLogin.setOnClickListener {
             val intent = Intent(this, Login::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
         }
 
@@ -55,7 +56,7 @@ class Register : ComponentActivity() {
                     val userMap = hashMapOf(
                         "email" to inputEmail,
                         "login" to inputLogin,
-                        "password" to inputPassword
+
                     )
 
                     // Set additional user information in the Firebase Firestore
@@ -99,4 +100,11 @@ class Register : ComponentActivity() {
                     Toast.makeText(this, "Failed to send verification email", Toast.LENGTH_SHORT).show()
                 }
             }
-}}
+}
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val intent = Intent(this, Login::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+    }
+}
