@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -23,14 +24,22 @@ class MainActivity : ComponentActivity() {
         setContentView(R.layout.main_activity)
         googleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_SIGN_IN)
 
-
         btn = findViewById(R.id.Sign_out_b)
         btn.setOnClickListener {
-            googleSignInClient.signOut()
-            //intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-            val i  = Intent(this,Login::class.java)
-            startActivity(i)
+            // Wyczyść SharedPreferences
+            clearSharedPreferences()
 
+            // Wyloguj się z Firebase
+            FirebaseAuth.getInstance().signOut()
+
+            // Wyloguj się z Google (jeżeli jesteś zalogowany przy użyciu Google Sign-In)
+            googleSignInClient.signOut()
+
+            // Przekieruj do ekranu logowania
+            redirectToLogin()
+
+            // Zakończ bieżącą aktywność
+            finish()
         }
 
         auth = FirebaseAuth.getInstance()
@@ -52,21 +61,30 @@ class MainActivity : ComponentActivity() {
                         val login: String = document.getString("login") ?: ""
                         val welcomeText = "Witaj $login"
                         welcomeMessage.text = welcomeText
-                        //wylogowanie
-
-                    }
-                    else{
+                    } else {
                         val welcomeText = "Witaj"
                         welcomeMessage.text = welcomeText
                     }
-
                 }
-
                 .addOnFailureListener { exception ->
                     // Obsłuż błąd odczytu z Firestore
                     // W praktyce warto dodać odpowiednie logi lub obsługę błędów
                 }
+        } else {
+            // Przekieruj do ekranu logowania, jeśli użytkownik nie jest zalogowany
+            redirectToLogin()
         }
     }
 
+    private fun redirectToLogin() {
+        val intent = Intent(this, Login::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+    }
+
+    private fun clearSharedPreferences() {
+        val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.clear().apply()
+    }
 }

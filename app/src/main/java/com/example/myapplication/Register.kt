@@ -46,49 +46,58 @@ class Register : ComponentActivity() {
         val inputPassword = password.text.toString()
         val inputLogin = login.text.toString()
 
-        auth.createUserWithEmailAndPassword(inputEmail, inputPassword)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    // Get the UID of the newly created user
-                    val uid = auth.currentUser?.uid
+        // Sprawdź, czy login jest unikalny
+        checkIfLoginIsUnique(inputLogin) { isUnique ->
+            if (isUnique) {
+                // Jeśli login jest unikalny, kontynuuj proces rejestracji
+                auth.createUserWithEmailAndPassword(inputEmail, inputPassword)
+                    .addOnCompleteListener(this) { task ->
+                        if (task.isSuccessful) {
+                            // Get the UID of the newly created user
+                            val uid = auth.currentUser?.uid
 
-                    // Create a map with additional user information (e.g., login)
-                    val userMap = hashMapOf(
-                        "email" to inputEmail,
-                        "login" to inputLogin,
+                            // Create a map with additional user information (e.g., login)
+                            val userMap = hashMapOf(
+                                "email" to inputEmail,
+                                "login" to inputLogin
+                                // Dodaj inne informacje o użytkowniku, jeśli są dostępne
+                            )
 
-                    )
-
-                    // Set additional user information in the Firebase Firestore
-                    uid?.let {
-                        FirebaseFirestore.getInstance().collection("users").document(uid).set(userMap)
-                            .addOnSuccessListener {
-                                // Continue with the login code
-                                sendEmailVerification()
-                                val intent = Intent(this, Login::class.java)
-                                startActivity(intent)
-                                Toast.makeText(
-                                    baseContext, "Success.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                            // Set additional user information in the Firebase Firestore
+                            uid?.let {
+                                FirebaseFirestore.getInstance().collection("users").document(uid).set(userMap)
+                                    .addOnSuccessListener {
+                                        // Continue with the login code
+                                        sendEmailVerification()
+                                        val intent = Intent(this, Login::class.java)
+                                        startActivity(intent)
+                                        Toast.makeText(
+                                            baseContext, "Success.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                    .addOnFailureListener {
+                                        Toast.makeText(
+                                            baseContext,
+                                            "Error saving user information: ${it.localizedMessage}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                             }
-                            .addOnFailureListener {
-                                Toast.makeText(
-                                    baseContext,
-                                    "Error saving user information: ${it.localizedMessage}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                        } else {
+                            // Handle registration failure
+                            Toast.makeText(baseContext, "Authentication failed.", Toast.LENGTH_SHORT).show()
+                        }
                     }
-                } else {
-                    // Handle registration failure
-                    Toast.makeText(baseContext, "Authentication failed.", Toast.LENGTH_SHORT).show()
-                }
+                    .addOnFailureListener {
+                        Toast.makeText(this, "Error occurred ${it.localizedMessage}", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+            } else {
+                // Jeśli login nie jest unikalny, poinformuj użytkownika
+                Toast.makeText(this, "Login is not unique. Choose a different login.", Toast.LENGTH_SHORT).show()
             }
-            .addOnFailureListener {
-                Toast.makeText(this, "Error occurred ${it.localizedMessage}", Toast.LENGTH_SHORT)
-                    .show()
-            }
+        }
     }
     private fun sendEmailVerification() {
         val user = auth.currentUser
@@ -106,5 +115,30 @@ class Register : ComponentActivity() {
         val intent = Intent(this, Login::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
+    }
+
+    private fun checkIfLoginIsUnique(login: String, callback: (Boolean) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        val usersCollection = db.collection("users")
+
+        // Sprawdź, czy istnieje użytkownik o podanym loginie
+        usersCollection
+            .whereEqualTo("login", login)
+            .get()
+            .addOnSuccessListener { documents ->
+                // Jeśli nie ma dokumentów oznacza to, że login jest unikalny
+                callback.invoke(documents.isEmpty)
+            }
+            .addOnFailureListener { exception ->
+                // Obsłuż błąd podczas sprawdzania unikalności loginu
+                Toast.makeText(
+                    baseContext,
+                    "Error checking login uniqueness: ${exception.localizedMessage}",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                // W przypadku błędu przekaż wynik (false) do callbacka
+                callback.invoke(false)
+            }
     }
 }
