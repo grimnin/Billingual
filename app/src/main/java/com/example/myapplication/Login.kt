@@ -31,6 +31,7 @@ class Login : ComponentActivity() {
     private lateinit var textViewGoogleNick: EditText
     private lateinit var buttonNickG: Button
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(login)
@@ -65,6 +66,12 @@ class Login : ComponentActivity() {
         val googleSignUp: TextView = findViewById(R.id.textViewGoogleL)
         googleSignUp.setOnClickListener {
             signInGoogle()
+        }
+
+        val changePassword: TextView = findViewById(R.id.textViewForgotPassword)
+        changePassword.setOnClickListener {
+            val intent = Intent(this, ChangePassword::class.java)
+            startActivity(intent)
         }
 
         textViewGoogleNick = findViewById(R.id.textViewGoogleNick)
@@ -139,6 +146,8 @@ class Login : ComponentActivity() {
                             findViewById<TextView>(R.id.textView_create_now).visibility = View.GONE
                             findViewById<TextView>(R.id.textViewGoogleL).visibility = View.GONE
                             findViewById<ImageView>(R.id.imageView3).visibility = View.GONE
+                            findViewById<TextView>(R.id.textViewLoginText).visibility = View.GONE
+                            findViewById<TextView>(R.id.textViewForgotPassword).visibility = View.GONE
 
                             buttonNickG.setOnClickListener {
                                 val loginText = textViewGoogleNick.text.toString()
@@ -188,7 +197,9 @@ class Login : ComponentActivity() {
     private fun saveToUsersCollection(login: String, email: String) {
         val userMap = hashMapOf(
             "email" to email,
-            "login" to login
+            "login" to login,
+            "role" to "user",
+            "score" to 0
         )
 
         FirebaseFirestore.getInstance().collection("users")

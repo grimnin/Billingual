@@ -10,11 +10,11 @@
 
     <TextView
 
-        android:id="@+id/textViewRegisterL"
+        android:id="@+id/textViewLoginText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="162dp"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="92dp"
         android:layout_marginEnd="163dp"
         android:text="LOGIN"
         android:textColor="@color/black"
@@ -37,7 +37,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewRegisterL" />
+        app:layout_constraintTop_toBottomOf="@+id/textViewLoginText" />
 
     <EditText
         android:id="@+id/editTextPasswordL"
@@ -69,7 +69,7 @@
         android:id="@+id/buttonLoginL"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="55dp"
         android:background="@drawable/rectangle"
         android:text="Login"
         app:layout_constraintEnd_toEndOf="@+id/editTextPasswordL"
@@ -110,23 +110,37 @@
         android:layout_marginEnd="141dp"
         android:hint="Enter your nick"
         android:textColorHint="@color/black"
+        android:textSize="40sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.233" />
+        app:layout_constraintVertical_bias="0.318" />
 
     <Button
         android:id="@+id/buttonNickG"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Button"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/rectangle"
+        android:text="Confirm"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/textViewGoogleNick"
-        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@+id/textViewGoogleNick"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.802" />
+        app:layout_constraintTop_toBottomOf="@+id/textViewGoogleNick"
+        app:layout_constraintVertical_bias="0.057" />
+
+    <TextView
+        android:id="@+id/textViewForgotPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="5dp"
+        android:text="Forgot password?"
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toEndOf="@+id/editTextPasswordL"
+        app:layout_constraintTop_toBottomOf="@+id/editTextPasswordL" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

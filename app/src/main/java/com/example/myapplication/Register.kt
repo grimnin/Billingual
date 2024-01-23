@@ -59,7 +59,9 @@ class Register : ComponentActivity() {
                             // Create a map with additional user information (e.g., login)
                             val userMap = hashMapOf(
                                 "email" to inputEmail,
-                                "login" to inputLogin
+                                "login" to inputLogin,
+                                "role" to "user",
+                                "score" to 0
                                 // Dodaj inne informacje o użytkowniku, jeśli są dostępne
                             )
 

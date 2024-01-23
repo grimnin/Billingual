@@ -17,6 +17,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
     private lateinit var btn: Button
+    private lateinit var btnTotal:Button
     private lateinit var googleSignInClient: GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,10 +71,40 @@ class MainActivity : ComponentActivity() {
                     // Obsłuż błąd odczytu z Firestore
                     // W praktyce warto dodać odpowiednie logi lub obsługę błędów
                 }
+            btnTotal=findViewById(R.id.buttonIncreaseTotal)
+            btnTotal.setOnClickListener {
+                val userDocumentRef = firestore.collection("users").document(uid)
+                val word1Ref = userDocumentRef.collection("stats")
+                    .document("word_stats")
+                    .collection("categories")
+                    .document("animals")
+                    .collection("words")
+                    .document("word1")
+                word1Ref.get().addOnSuccessListener { documentSnapshot ->
+                    if (documentSnapshot.exists()) {
+                        val currentTotal = documentSnapshot.getLong("total") ?: 0
+
+                        // Zaktualizuj wartość "total" w dokumencie word1
+                        val newTotal = currentTotal + 1
+                        word1Ref.update("total", newTotal)
+                            .addOnSuccessListener {
+                                // Jeżeli aktualizacja zakończyła się sukcesem
+                                // Tutaj możesz dodać odpowiednią logikę lub powiadomienie
+                            }
+                            .addOnFailureListener { exception ->
+                                // Obsłuż błąd aktualizacji
+                                // W praktyce warto dodać odpowiednie logi lub obsługę błędów
+                            }
+                    }
+                }
+
+            }
+
         } else {
             // Przekieruj do ekranu logowania, jeśli użytkownik nie jest zalogowany
             redirectToLogin()
         }
+
     }
 
     private fun redirectToLogin() {
