@@ -19,6 +19,7 @@ class Register : ComponentActivity() {
         setContentView(R.layout.register)
         auth = Firebase.auth
 
+
         val switchToLogin: Button = findViewById(R.id.buttonSwitchToLoginR)
         switchToLogin.setOnClickListener {
             val intent = Intent(this, Login::class.java)
