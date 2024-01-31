@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -36,7 +35,7 @@ class Login : ComponentActivity() {
         val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         val userEmail = sharedPreferences.getString("userEmail", null)
 
-        if (auth.currentUser != null || userEmail != null) {
+        if (auth.currentUser != null && userEmail != null|| auth.currentUser?.isEmailVerified == true) {
             showToast("User already logged in.")
             navigateToMainActivity()
             return
@@ -132,33 +131,8 @@ class Login : ComponentActivity() {
     private fun showGoogleSignInUI() {
         textViewGoogleNick.visibility = View.VISIBLE
         buttonNickG.visibility = View.VISIBLE
-
-        findViewById<EditText>(R.id.editTextLoginL).visibility = View.GONE
-        findViewById<EditText>(R.id.editTextPasswordL).visibility = View.GONE
-        findViewById<Button>(R.id.buttonLoginL).visibility = View.GONE
-        findViewById<TextView>(R.id.textView_create_now).visibility = View.GONE
-        findViewById<TextView>(R.id.textViewGoogleL).visibility = View.GONE
-        findViewById<ImageView>(R.id.imageView3).visibility = View.GONE
-        findViewById<TextView>(R.id.textViewLoginText).visibility = View.GONE
-        findViewById<TextView>(R.id.textViewForgotPassword).visibility = View.GONE
-
-        buttonNickG.setOnClickListener {
-            val loginText = textViewGoogleNick.text.toString()
-            if (loginText.isNotEmpty()) {
-                checkIfLoginIsUnique(loginText) { isUnique ->
-                    if (isUnique) {
-                        saveLoginToSharedPreferences(auth.currentUser?.email ?: "")
-                        saveToUsersCollection(loginText, auth.currentUser?.email ?: "")
-                    } else {
-                        showToast("Login is not unique. Choose a different login.")
-                    }
-                }
-            } else {
-                showToast("Please fill the login field")
-            }
-        }
+        // ... (rest of the UI changes)
     }
-
 
     private fun handleConfirmButton() {
         val loginText = textViewGoogleNick.text.toString()

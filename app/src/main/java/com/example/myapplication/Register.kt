@@ -1,14 +1,13 @@
 package com.example.myapplication
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class Register : ComponentActivity() {
@@ -17,8 +16,7 @@ class Register : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.register)
-        auth = Firebase.auth
-
+        auth = FirebaseAuth.getInstance()
 
         val switchToLogin: Button = findViewById(R.id.buttonSwitchToLoginR)
         switchToLogin.setOnClickListener {
@@ -30,6 +28,7 @@ class Register : ComponentActivity() {
         val signUp: Button = findViewById(R.id.button_sign_up_R)
         signUp.setOnClickListener {
             performSignUp()
+            clearSharedPreferences()
         }
     }
 
@@ -39,7 +38,7 @@ class Register : ComponentActivity() {
         val login = findViewById<EditText>(R.id.editTextLoginR)
 
         if (email.text.toString().isEmpty() || password.text.toString().isEmpty() || login.text.toString().isEmpty()) {
-            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
+            showToast("Please fill all fields")
             return
         }
 
@@ -47,10 +46,10 @@ class Register : ComponentActivity() {
         val inputPassword = password.text.toString()
         val inputLogin = login.text.toString()
 
-        // Sprawdź, czy login jest unikalny
+        // Check if login is unique
         checkIfLoginIsUnique(inputLogin) { isUnique ->
             if (isUnique) {
-                // Jeśli login jest unikalny, kontynuuj proces rejestracji
+                // If login is unique, proceed with creating an account
                 auth.createUserWithEmailAndPassword(inputEmail, inputPassword)
                     .addOnCompleteListener(this) { task ->
                         if (task.isSuccessful) {
@@ -63,56 +62,53 @@ class Register : ComponentActivity() {
                                 "login" to inputLogin,
                                 "role" to "user",
                                 "score" to 0
-                                // Dodaj inne informacje o użytkowniku, jeśli są dostępne
+                                // Add other user information if available
                             )
 
                             // Set additional user information in the Firebase Firestore
                             uid?.let {
                                 FirebaseFirestore.getInstance().collection("users").document(uid).set(userMap)
                                     .addOnSuccessListener {
-                                        // Continue with the login code
+                                        // Continue with the login code after successful registration
                                         sendEmailVerification()
+                                        showToast("Success. Please log in.")
+
+                                        // Redirect the user to the login screen
                                         val intent = Intent(this, Login::class.java)
+                                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                                         startActivity(intent)
-                                        Toast.makeText(
-                                            baseContext, "Success.",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
                                     }
                                     .addOnFailureListener {
-                                        Toast.makeText(
-                                            baseContext,
-                                            "Error saving user information: ${it.localizedMessage}",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
+                                        showToast("Error saving user information: ${it.localizedMessage}")
                                     }
                             }
                         } else {
                             // Handle registration failure
-                            Toast.makeText(baseContext, "Authentication failed.", Toast.LENGTH_SHORT).show()
+                            showToast("Authentication failed.")
                         }
                     }
                     .addOnFailureListener {
-                        Toast.makeText(this, "Error occurred ${it.localizedMessage}", Toast.LENGTH_SHORT)
-                            .show()
+                        showToast("Error occurred ${it.localizedMessage}")
                     }
             } else {
-                // Jeśli login nie jest unikalny, poinformuj użytkownika
-                Toast.makeText(this, "Login is not unique. Choose a different login.", Toast.LENGTH_SHORT).show()
+                // If login is not unique, inform the user
+                showToast("Login is not unique. Choose a different login.")
             }
         }
     }
+
     private fun sendEmailVerification() {
         val user = auth.currentUser
         user?.sendEmailVerification()
             ?.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    Toast.makeText(this, "Verification email sent to ${user.email}", Toast.LENGTH_SHORT).show()
+                    showToast("Verification email sent to ${user.email}")
                 } else {
-                    Toast.makeText(this, "Failed to send verification email", Toast.LENGTH_SHORT).show()
+                    showToast("Failed to send verification email")
                 }
             }
-}
+    }
+
     override fun onBackPressed() {
         super.onBackPressed()
         val intent = Intent(this, Login::class.java)
@@ -124,24 +120,30 @@ class Register : ComponentActivity() {
         val db = FirebaseFirestore.getInstance()
         val usersCollection = db.collection("users")
 
-        // Sprawdź, czy istnieje użytkownik o podanym loginie
+        // Check if a user with the given login exists
         usersCollection
             .whereEqualTo("login", login)
             .get()
             .addOnSuccessListener { documents ->
-                // Jeśli nie ma dokumentów oznacza to, że login jest unikalny
+                // If there are no documents, it means the login is unique
                 callback.invoke(documents.isEmpty)
             }
             .addOnFailureListener { exception ->
-                // Obsłuż błąd podczas sprawdzania unikalności loginu
-                Toast.makeText(
-                    baseContext,
-                    "Error checking login uniqueness: ${exception.localizedMessage}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                // Handle the error while checking the uniqueness of the login
+                showToast("Error checking login uniqueness: ${exception.localizedMessage}")
 
-                // W przypadku błędu przekaż wynik (false) do callbacka
+                // In case of an error, pass the result (false) to the callback
                 callback.invoke(false)
             }
+    }
+
+    private fun clearSharedPreferences() {
+        val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.clear().apply()
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }
