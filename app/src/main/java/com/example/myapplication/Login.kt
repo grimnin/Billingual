@@ -123,21 +123,17 @@ class Login : ComponentActivity() {
                 if (!userExists) {
                     showGoogleSignInUI()
                     // Add this line to call addCategories after showing the UI
-                    addCategoriesToUser(auth.currentUser?.uid ?: "")
+                    FirebaseOperations(this).addWordStatsSubcollection(auth.currentUser?.uid ?: "")
+                    FirebaseOperations(this).copyWordsToCategories(auth.currentUser?.uid ?: "")
+
+                    //FirebaseOperations(this).copyAnimalDocument(auth.currentUser?.uid ?: "")
                 } else {
                     navigateToMainActivity()
                 }
             }
         }
     }
-    private fun addCategoriesToUser(userId: String) {
-        // Modify the categories list based on your requirements
-        val categories = listOf("animals", "body", "subjects", "jobs", "weather")
 
-        // Create an instance of FirebaseOperations and call addCategories
-        val firebaseOperations = FirebaseOperations(this)
-        firebaseOperations.addCategories(userId, categories)
-    }
 
     private fun showGoogleSignInUI() {
         textViewGoogleNick.visibility = View.VISIBLE
