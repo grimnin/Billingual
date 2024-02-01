@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import FirebaseOperations
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -121,11 +122,21 @@ class Login : ComponentActivity() {
             checkIfUserExistsInDatabase(it) { userExists ->
                 if (!userExists) {
                     showGoogleSignInUI()
+                    // Add this line to call addCategories after showing the UI
+                    addCategoriesToUser(auth.currentUser?.uid ?: "")
                 } else {
                     navigateToMainActivity()
                 }
             }
         }
+    }
+    private fun addCategoriesToUser(userId: String) {
+        // Modify the categories list based on your requirements
+        val categories = listOf("animals", "body", "subjects", "jobs", "weather")
+
+        // Create an instance of FirebaseOperations and call addCategories
+        val firebaseOperations = FirebaseOperations(this)
+        firebaseOperations.addCategories(userId, categories)
     }
 
     private fun showGoogleSignInUI() {
