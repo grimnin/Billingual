@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -129,6 +130,7 @@ class Login : ComponentActivity() {
                     //FirebaseOperations(this).copyAnimalDocument(auth.currentUser?.uid ?: "")
                 } else {
                     navigateToMainActivity()
+                    FirebaseOperations(this).updateUsersScore(auth.currentUser?.uid ?: "")
                 }
             }
         }
@@ -138,7 +140,14 @@ class Login : ComponentActivity() {
     private fun showGoogleSignInUI() {
         textViewGoogleNick.visibility = View.VISIBLE
         buttonNickG.visibility = View.VISIBLE
-        // ... (rest of the UI changes)
+        findViewById<EditText>(R.id.editTextLoginL).visibility = View.GONE
+        findViewById<EditText>(R.id.editTextPasswordL).visibility = View.GONE
+        findViewById<Button>(R.id.buttonLoginL).visibility = View.GONE
+        findViewById<TextView>(R.id.textView_create_now).visibility = View.GONE
+        findViewById<TextView>(R.id.textViewForgotPassword).visibility = View.GONE
+        findViewById<TextView>(R.id.textViewLoginText).visibility = View.GONE
+        findViewById<ImageView>(R.id.imageView3).visibility = View.GONE
+
     }
 
     private fun handleConfirmButton() {
