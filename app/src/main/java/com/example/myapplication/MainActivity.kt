@@ -5,7 +5,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentManager
+import com.example.myapplication.databinding.MainActivityBinding
+import com.example.myapplication.fragments.MenuFragment
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -13,19 +16,23 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 
-class MainActivity : ComponentActivity() {
+
+class MainActivity : AppCompatActivity() {
+    private lateinit var binding: MainActivityBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
     private lateinit var btn: Button
-    private lateinit var btnTotal:Button
+    private lateinit var btnTotal: Button
     private lateinit var googleSignInClient: GoogleSignInClient
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.main_activity)
+        binding = MainActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         googleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_SIGN_IN)
 
-        btn = findViewById(R.id.Sign_out_b)
+        btn = binding.SignOutB
         btn.setOnClickListener {
             // Wyczyść SharedPreferences
             clearSharedPreferences()
@@ -46,7 +53,7 @@ class MainActivity : ComponentActivity() {
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
 
-        val welcomeMessage: TextView = findViewById(R.id.welcomeMessage)
+        val welcomeMessage: TextView = binding.welcomeMessage
 
         // Sprawdź, czy użytkownik jest zalogowany
         val currentUser: FirebaseUser? = auth.currentUser
@@ -62,16 +69,13 @@ class MainActivity : ComponentActivity() {
                         val login: String = document.getString("login") ?: ""
                         val welcomeText = "Witaj $login"
                         welcomeMessage.text = welcomeText
-                    } else {
-                        val welcomeText = "Witaj"
-                        welcomeMessage.text = welcomeText
                     }
                 }
                 .addOnFailureListener { exception ->
                     // Obsłuż błąd odczytu z Firestore
                     // W praktyce warto dodać odpowiednie logi lub obsługę błędów
                 }
-            btnTotal=findViewById(R.id.buttonIncreaseTotal)
+            btnTotal = binding.buttonIncreaseTotal
             btnTotal.setOnClickListener {
                 val userDocumentRef = firestore.collection("users").document(uid)
                 val word1Ref = userDocumentRef.collection("stats")
@@ -97,14 +101,24 @@ class MainActivity : ComponentActivity() {
                             }
                     }
                 }
-
             }
-
         } else {
             // Przekieruj do ekranu logowania, jeśli użytkownik nie jest zalogowany
             redirectToLogin()
         }
 
+        if (savedInstanceState == null) {
+            // Jeżeli fragment jeszcze nie jest dodany, dodaj go
+            val fragmentManager: FragmentManager = supportFragmentManager
+            val fragmentTransaction = fragmentManager.beginTransaction()
+
+            // Tworzymy instancję MenuFragment
+            val menuFragment = MenuFragment()
+
+            // Dodajemy MenuFragment do fragmentContainerView2
+            fragmentTransaction.replace(R.id.fragmentContainerView2, menuFragment)
+            fragmentTransaction.commit()
+        }
     }
 
     private fun redirectToLogin() {

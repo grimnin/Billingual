@@ -71,7 +71,7 @@ class Register : ComponentActivity() {
                                     .addOnSuccessListener {
                                         // Continue with the login code after successful registration
                                         sendEmailVerification()
-                                        showToast("Success. Please log in.")
+                                        showToast("Success.")
 
                                         // Redirect the user to the login screen
                                         val intent = Intent(this, Login::class.java)

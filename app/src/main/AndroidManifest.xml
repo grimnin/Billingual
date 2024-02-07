@@ -40,10 +40,11 @@
         <activity
 
             android:name=".MainActivity"
+            android:theme="@style/Theme.MyApplication.AppCompat"
             android:exported="false"
-            android:label="@string/app_name"
+
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.MyApplication">
+            >
 
         </activity>
         <activity

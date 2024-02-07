@@ -38,8 +38,12 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+
+
     buildFeatures {
         compose = true
+        viewBinding=true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.3"
@@ -69,6 +73,7 @@ dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
     implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation("com.google.code.gson:gson:2.8.8")
 
     // Add the dependency for the Firebase Authentication library
     // When using the BoM, you don't specify versions in Firebase library dependencies
@@ -77,6 +82,7 @@ dependencies {
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.play.services.auth)
     implementation(libs.androidx.appcompat)
+    implementation("com.google.firebase:firebase-storage:20.3.0")
 
 
     testImplementation(libs.junit)

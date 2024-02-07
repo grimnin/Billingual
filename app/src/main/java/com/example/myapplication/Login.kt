@@ -73,6 +73,7 @@ class Login : ComponentActivity() {
         val loginButton: Button = findViewById(R.id.buttonLoginL)
         loginButton.setOnClickListener {
             preformLogin()
+            
         }
 
         val confirmButtonG: Button = findViewById(R.id.buttonNickG)
