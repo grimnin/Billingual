@@ -20,6 +20,7 @@ class QuizFragment : Fragment() {
     private lateinit var viewModel: QuizViewModel
     private lateinit var firestore: FirebaseFirestore
     private lateinit var auth: FirebaseAuth
+    private var isCorrect=false
     private val storage = Firebase.storage
 
     override fun onCreateView(
@@ -45,10 +46,20 @@ class QuizFragment : Fragment() {
 
         // Ustawienie onClickListenera dla przycisków odpowiedzi
         binding.apply {
-            buttonAnswer1.setOnClickListener { checkAnswer(buttonAnswer1.text.toString()) }
-            buttonAnswer2.setOnClickListener { checkAnswer(buttonAnswer2.text.toString()) }
-            buttonAnswer3.setOnClickListener { checkAnswer(buttonAnswer3.text.toString()) }
-            buttonAnswer4.setOnClickListener { checkAnswer(buttonAnswer4.text.toString()) }
+            buttonAnswer1.setOnClickListener { checkAnswer(buttonAnswer1.text.toString())
+                Log.d("WYNIK GURWA",checkAnswer(buttonAnswer1.text.toString()).toString())
+
+            }
+
+            buttonAnswer2.setOnClickListener { checkAnswer(buttonAnswer2.text.toString())
+
+            }
+            buttonAnswer3.setOnClickListener { checkAnswer(buttonAnswer3.text.toString())
+
+            }
+            buttonAnswer4.setOnClickListener { checkAnswer(buttonAnswer4.text.toString())
+
+            }
         }
     }
 
@@ -107,9 +118,9 @@ class QuizFragment : Fragment() {
 
         // Iteruj przez listę słów i dodaj do listy wszystkie słowa, które mają chociaż jedno wystąpienie (total > 0)
         for (word in wordsList) {
-            if (word.total >= 0) {
+
                 selectableWords.add(word)
-            }
+
         }
 
         // Jeżeli lista wyboru jest pusta, zwróć null (brak dostępnych słów)
@@ -141,8 +152,111 @@ class QuizFragment : Fragment() {
     }
 
     private fun checkAnswer(selectedAnswer: String) {
-        // Tutaj możesz dodać logikę sprawdzania poprawności odpowiedzi
+        // Pobierz wybraną odpowiedź
+
+
+        // Sprawdź czy wybrana odpowiedź zgadza się z polem correctAnswer dla aktualnego słowa
+        val isCorrect = checkIfAnswerIsCorrect(selectedAnswer)
+Log.d("Boo","$isCorrect")
+
+        // Wyświetl wartość isCorrect w logu
+
     }
+
+    private fun updateWordStats(isCorrect: Boolean) {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            val userId = currentUser.uid
+
+            val currentWord = binding.QuestiontextView.text.toString()
+
+            firestore.collection("users").document(userId).collection("stats")
+                .document("word_stats").collection("categories").get()
+                .addOnSuccessListener { categories ->
+                    for (category in categories) {
+                        val categoryId = category.id
+                        firestore.collection("users").document(userId).collection("stats")
+                            .document("word_stats").collection("categories").document(categoryId)
+                            .collection("words").whereEqualTo("pl", currentWord).get()
+                            .addOnSuccessListener { words ->
+                                for (wordDoc in words) {
+                                    val wordRef = firestore.collection("users").document(userId)
+                                        .collection("stats").document("word_stats").collection("categories")
+                                        .document(categoryId).collection("words").document(wordDoc.id)
+
+                                    firestore.runTransaction { transaction ->
+                                        val snapshot = transaction.get(wordRef)
+                                        val currentCorrectCount = snapshot.getLong("correctCount") ?: 0
+                                        val currentMistakeCounter = snapshot.getLong("mistakeCounter") ?: 0
+                                        if (isCorrect) {
+                                            transaction.update(wordRef, "correctCount", currentCorrectCount + 1)
+                                        } else {
+                                            transaction.update(wordRef, "mistakeCounter", currentMistakeCounter + 1)
+                                        }
+                                        null
+                                    }.addOnSuccessListener {
+                                        Log.d("QuizFragment", "Word stats updated successfully")
+                                    }.addOnFailureListener { exception ->
+                                        Log.e("QuizFragment", "Error updating word stats", exception)
+                                    }
+                                }
+                            }
+                    }
+                }
+        }
+    }
+
+
+    private fun checkIfAnswerIsCorrect(selectedAnswer: String) {
+        // Pobierz aktualnie wylosowane słowo
+        val currentWord = binding.QuestiontextView.text.toString()
+
+        // Pobierz referencję do pliku JSON w Storage
+        val storageRef = storage.reference.child("answers.json")
+
+        // Pobierz plik JSON z Storage
+        storageRef.getBytes(1024 * 1024) // Pobierz maksymalnie 1 MB danych
+            .addOnSuccessListener { bytes ->
+                val jsonString = String(bytes)
+                try {
+                    // Parsuj JSON
+                    val jsonObject = JSONObject(jsonString)
+                    val categories = jsonObject.getJSONObject("categories")
+
+                    // Iteruj przez kategorie
+                    categories.keys().forEach { categoryKey ->
+                        val category = categories.getJSONObject(categoryKey)
+                        val words = category.getJSONArray("words")
+
+                        // Iteruj przez słowa w danej kategorii
+                        for (i in 0 until words.length()) {
+                            val jsonWord = words.getJSONObject(i)
+                            val wordPl = jsonWord.getString("pl")
+                            if (wordPl == currentWord) {
+                                // Znaleziono aktualne słowo, sprawdź czy wybrana odpowiedź jest poprawna
+                                val correctAnswer = jsonWord.getString("correctAnswer")
+                                Log.d("ODP","to jest odp " +selectedAnswer.equals(correctAnswer))
+                                 isCorrect = selectedAnswer.equals(correctAnswer)
+
+                                // Wyświetl wartość isCorrect w logu
+                                Log.d("QuizFragment", "Is answer correct: $isCorrect selected: $selectedAnswer ")
+
+
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("QuizFragment", "Error parsing JSON", e)
+                }
+                updateWordStats(isCorrect)
+                return@addOnSuccessListener
+            }
+            .addOnFailureListener { exception ->
+                Log.e("QuizFragment", "Error loading JSON from storage", exception)
+            }
+    }
+
+
 
     private fun loadAnswersFromStorage(word: String) {
         // Pobierz referencję do pliku JSON w Storage
