@@ -1,12 +1,13 @@
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentQuizBinding
-import com.example.myapplication.fragments.quiz.QuizViewModel
 import com.example.myapplication.fragments.quiz.Word
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -17,11 +18,13 @@ import org.json.JSONObject
 class QuizFragment : Fragment() {
 
     private lateinit var binding: FragmentQuizBinding
-    private lateinit var viewModel: QuizViewModel
     private lateinit var firestore: FirebaseFirestore
     private lateinit var auth: FirebaseAuth
-    private var isCorrect=false
+    private var isCorrect = false
+    private var attemptCount = 0
     private val storage = Firebase.storage
+    private var isAnswered = false
+    private val selectedWords = mutableSetOf<String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,32 +37,19 @@ class QuizFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Inicjalizacja Firebase
+        // Initialize Firebase
         firestore = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
 
-        // Inicjalizacja ViewModel
-        viewModel = ViewModelProvider(this).get(QuizViewModel::class.java)
-
-        // Pobierz i wyświetl losowe słowo dla quizu
+        // Get and display a random word for the quiz
         getRandomWordForQuiz()
 
-        // Ustawienie onClickListenera dla przycisków odpowiedzi
+        // Set onClickListener for answer buttons
         binding.apply {
-            buttonAnswer1.setOnClickListener { checkAnswer(buttonAnswer1.text.toString())
-                Log.d("WYNIK GURWA",checkAnswer(buttonAnswer1.text.toString()).toString())
-
-            }
-
-            buttonAnswer2.setOnClickListener { checkAnswer(buttonAnswer2.text.toString())
-
-            }
-            buttonAnswer3.setOnClickListener { checkAnswer(buttonAnswer3.text.toString())
-
-            }
-            buttonAnswer4.setOnClickListener { checkAnswer(buttonAnswer4.text.toString())
-
-            }
+            buttonAnswer1.setOnClickListener { checkAnswer(buttonAnswer1.text.toString()) }
+            buttonAnswer2.setOnClickListener { checkAnswer(buttonAnswer2.text.toString()) }
+            buttonAnswer3.setOnClickListener { checkAnswer(buttonAnswer3.text.toString()) }
+            buttonAnswer4.setOnClickListener { checkAnswer(buttonAnswer4.text.toString()) }
         }
     }
 
@@ -68,108 +58,137 @@ class QuizFragment : Fragment() {
         if (currentUser != null) {
             val userId = currentUser.uid
 
-            // Pobierz wszystkie słowa ze wszystkich kategorii
-            firestore.collection("users").document(userId).collection("stats")
-                .document("word_stats").collection("categories").get()
-                .addOnSuccessListener { categories ->
-                    val allWords = mutableListOf<Word>()
-                    val categoryCount = categories.size() // Liczba kategorii
-                    var categoriesProcessed = 0 // Licznik przetworzonych kategorii
-                    for (category in categories) {
-                        val categoryId = category.id
-                        // Pobierz słowa dla każdej kategorii i dodaj je do listy wszystkich słów
-                        firestore.collection("users").document(userId).collection("stats")
-                            .document("word_stats").collection("categories").document(categoryId)
-                            .collection("words").get()
-                            .addOnSuccessListener { words ->
-                                for (wordDoc in words) {
-                                    val word = wordDoc.toObject(Word::class.java)
-                                    allWords.add(word)
-                                }
-                                categoriesProcessed++
-                                // Jeśli wszystkie kategorie zostały przetworzone, wybierz jedno losowe słowo spośród wszystkich słów
-                                if (categoriesProcessed == categoryCount) {
-                                    // Wybierz losowe słowo z pobranych wszystkich słów
-                                    val randomWord = selectRandomWord(allWords)
-                                    if (randomWord != null) {
-                                        val wordEng = randomWord.pl
-                                        binding.QuestiontextView.text = wordEng // Aktualizuj pole tekstowe
-                                        loadAnswersFromStorage(randomWord.pl)
-                                    } else {
-                                        Log.d("QuizFragment", "Brak dostępnych słów")
+            if (attemptCount < 5) {
+                isCorrect = false
+
+                firestore.collection("users").document(userId).collection("stats")
+                    .document("word_stats").collection("categories").get()
+                    .addOnSuccessListener { categories ->
+                        val allWords = mutableListOf<Word>()
+                        val categoryCount = categories.size()
+                        var categoriesProcessed = 0
+                        for (category in categories) {
+                            val categoryId = category.id
+                            firestore.collection("users").document(userId).collection("stats")
+                                .document("word_stats").collection("categories").document(categoryId)
+                                .collection("words").get()
+                                .addOnSuccessListener { words ->
+                                    for (wordDoc in words) {
+                                        val word = wordDoc.toObject(Word::class.java)
+                                        allWords.add(word)
+                                    }
+                                    categoriesProcessed++
+                                    if (categoriesProcessed == categoryCount) {
+                                        var randomWord: Word? = null
+                                        do {
+                                            randomWord = selectRandomWord(allWords)
+                                        } while (randomWord != null && selectedWords.contains(randomWord.pl))
+
+                                        if (randomWord != null) {
+                                            selectedWords.add(randomWord.pl)
+                                            val wordEng = randomWord.pl
+                                            binding.QuestiontextView.text = wordEng
+                                            loadAnswersFromStorage(randomWord.pl)
+                                            attemptCount++
+                                        } else {
+                                            Log.d("QuizFragment", "No available words")
+                                        }
                                     }
                                 }
-                            }
-                            .addOnFailureListener { exception ->
-                                // Obsłuż błąd pobierania słów
-                                categoriesProcessed++
-                            }
+                                .addOnFailureListener { exception ->
+                                    categoriesProcessed++
+                                }
+                        }
                     }
-                }
-                .addOnFailureListener { exception ->
-                    // Obsłuż błąd pobierania kategorii
-                }
+                    .addOnFailureListener { exception ->
+                        Log.e("QuizFragment", "Error getting categories", exception)
+                    }
+            } else {
+                Log.d("QuizFragment", "User has used all attempts")
+            }
         }
     }
 
     private fun selectRandomWord(wordsList: List<Word>): Word? {
-        // Stwórz listę słów, które mogą być wybrane na podstawie stosunku błędów do poprawnych odpowiedzi
         val selectableWords = mutableListOf<Word>()
-
-        // Iteruj przez listę słów i dodaj do listy wszystkie słowa, które mają chociaż jedno wystąpienie (total > 0)
         for (word in wordsList) {
-
-                selectableWords.add(word)
-
+            selectableWords.add(word)
         }
-
-        // Jeżeli lista wyboru jest pusta, zwróć null (brak dostępnych słów)
         if (selectableWords.isEmpty()) {
             return null
         }
-
-        // Przygotuj listę wag dla każdego słowa na podstawie stosunku błędów do poprawnych odpowiedzi
         val weights = mutableListOf<Int>()
         for (word in selectableWords) {
-            // Oblicz wagę na podstawie stosunku błędów do poprawnych odpowiedzi
-            val errorCount = word.mistakeCounter+1
-            val correctCount = word.correctCount+1
-            val ratio = if (correctCount > 0) errorCount.toDouble() / correctCount.toDouble() else errorCount.toDouble() + 1 // Dodaj 1, aby uniknąć dzielenia przez zero
-            val weight = (ratio * 10).toInt() + 1 // Pomnóż przez 10, aby uzyskać większe wartości wag
+            val errorCount = word.mistakeCounter + 1
+            val correctCount = word.correctCount + 1
+            val ratio = if (correctCount > 0) errorCount.toDouble() / correctCount.toDouble() else errorCount.toDouble() + 1
+            val weight = (ratio * 10).toInt() + 1
             repeat(weight) {
-                weights.add(selectableWords.indexOf(word)) // Dodaj indeks słowa do listy wag
+                weights.add(selectableWords.indexOf(word))
             }
         }
-
-        // Wylosuj indeks na podstawie wag
         val randomIndex = (weights.indices).random()
-
-        // Wyświetl wartości wylosowanego słowa
         val selectedWord = selectableWords[weights[randomIndex]]
-        Log.d("QuizFragment", "Wylosowane słowo: ${selectedWord.eng}, mistakeCounter: ${selectedWord.mistakeCounter}, correctCount: ${selectedWord.correctCount}, total: ${selectedWord.total}")
-        // Zwróć wybrane słowo
+        Log.d("QuizFragment", "Random word: ${selectedWord.eng}, mistakeCounter: ${selectedWord.mistakeCounter}, correctCount: ${selectedWord.correctCount}, total: ${selectedWord.total}")
         return selectedWord
     }
 
+    // Gdy użytkownik wybierze odpowiedź
     private fun checkAnswer(selectedAnswer: String) {
-        // Pobierz wybraną odpowiedź
+        if (!isAnswered) {
+            isAnswered = true
+
+            disableAnswerButtons()
+            isCorrect = checkIfAnswerIsCorrect(selectedAnswer)
+            Log.d("Boo", "$isCorrect")
+
+            // Zmiana tła przycisku na podstawie poprawności odpowiedzi
 
 
-        // Sprawdź czy wybrana odpowiedź zgadza się z polem correctAnswer dla aktualnego słowa
-        val isCorrect = checkIfAnswerIsCorrect(selectedAnswer)
-Log.d("Boo","$isCorrect")
+            if (attemptCount < 5) {
+                // Resetowanie tła przycisków po kilku sekundach
+                Handler(Looper.getMainLooper()).postDelayed({
+                    resetButtonBackgrounds()
+                    getRandomWordForQuiz()
+                }, 1000) // 2000 ms = 2 sekundy
+            }
+        }
+    }
 
-        // Wyświetl wartość isCorrect w logu
+    // Resetowanie tła przycisków do domyślnego
+    private fun resetButtonBackgrounds() {
+        binding.apply {
+            buttonAnswer1.setBackgroundResource(R.drawable.rectangle)
+            buttonAnswer2.setBackgroundResource(R.drawable.rectangle)
+            buttonAnswer3.setBackgroundResource(R.drawable.rectangle)
+            buttonAnswer4.setBackgroundResource(R.drawable.rectangle)
+        }
+    }
 
+
+    private fun updateAnswerIndicator(isCorrect: Boolean) {
+        val indicatorList = listOf(
+            binding.answerIndicator1,
+            binding.answerIndicator2,
+            binding.answerIndicator3,
+            binding.answerIndicator4,
+            binding.answerIndicator5
+        )
+        val index = attemptCount-1
+        if (index < indicatorList.size) {
+            if (isCorrect) {
+                indicatorList[index].setImageResource(R.drawable.ic_circle_green)
+            } else {
+                indicatorList[index].setImageResource(R.drawable.ic_circle_red)
+            }
+        }
     }
 
     private fun updateWordStats(isCorrect: Boolean) {
         val currentUser = auth.currentUser
         if (currentUser != null) {
             val userId = currentUser.uid
-
             val currentWord = binding.QuestiontextView.text.toString()
-
             firestore.collection("users").document(userId).collection("stats")
                 .document("word_stats").collection("categories").get()
                 .addOnSuccessListener { categories ->
@@ -206,82 +225,89 @@ Log.d("Boo","$isCorrect")
         }
     }
 
-
-    private fun checkIfAnswerIsCorrect(selectedAnswer: String) {
-        // Pobierz aktualnie wylosowane słowo
+    private fun checkIfAnswerIsCorrect(selectedAnswer: String): Boolean {
         val currentWord = binding.QuestiontextView.text.toString()
-
-        // Pobierz referencję do pliku JSON w Storage
-        val storageRef = storage.reference.child("answers.json")
-
-        // Pobierz plik JSON z Storage
-        storageRef.getBytes(1024 * 1024) // Pobierz maksymalnie 1 MB danych
+        val storageRef = storage.reference.child("betterAnswers.json")
+        storageRef.getBytes(1024 * 1024)
             .addOnSuccessListener { bytes ->
                 val jsonString = String(bytes)
                 try {
-                    // Parsuj JSON
                     val jsonObject = JSONObject(jsonString)
                     val categories = jsonObject.getJSONObject("categories")
-
-                    // Iteruj przez kategorie
                     categories.keys().forEach { categoryKey ->
                         val category = categories.getJSONObject(categoryKey)
                         val words = category.getJSONArray("words")
-
-                        // Iteruj przez słowa w danej kategorii
                         for (i in 0 until words.length()) {
                             val jsonWord = words.getJSONObject(i)
                             val wordPl = jsonWord.getString("pl")
                             if (wordPl == currentWord) {
-                                // Znaleziono aktualne słowo, sprawdź czy wybrana odpowiedź jest poprawna
                                 val correctAnswer = jsonWord.getString("correctAnswer")
-                                Log.d("ODP","to jest odp " +selectedAnswer.equals(correctAnswer))
-                                 isCorrect = selectedAnswer.equals(correctAnswer)
+                                val isCorrect = selectedAnswer == correctAnswer
+                                val selectedButton = when (selectedAnswer) {
+                                    binding.buttonAnswer1.text.toString() -> binding.buttonAnswer1
+                                    binding.buttonAnswer2.text.toString() -> binding.buttonAnswer2
+                                    binding.buttonAnswer3.text.toString() -> binding.buttonAnswer3
+                                    binding.buttonAnswer4.text.toString() -> binding.buttonAnswer4
+                                    else -> null
+                                }
 
-                                // Wyświetl wartość isCorrect w logu
-                                Log.d("QuizFragment", "Is answer correct: $isCorrect selected: $selectedAnswer ")
-
-
+                                selectedButton?.let {
+                                    val backgroundDrawable = if (isCorrect) {
+                                        R.drawable.correct_answer
+                                    } else {
+                                        R.drawable.wrong_answer
+                                    }
+                                    it.setBackgroundResource(backgroundDrawable)
+                                }
+                                updateAnswerIndicator(isCorrect)
+                                Log.d("QuizFragment", "Is answer correct: $isCorrect, selected: $selectedAnswer ")
+                                updateWordStats(isCorrect)
+                                return@addOnSuccessListener
                             }
                         }
                     }
                 } catch (e: Exception) {
                     Log.e("QuizFragment", "Error parsing JSON", e)
                 }
-                updateWordStats(isCorrect)
-                return@addOnSuccessListener
             }
             .addOnFailureListener { exception ->
                 Log.e("QuizFragment", "Error loading JSON from storage", exception)
             }
+        return false
     }
 
+    private fun disableAnswerButtons() {
+        binding.apply {
+            buttonAnswer1.isEnabled = false
+            buttonAnswer2.isEnabled = false
+            buttonAnswer3.isEnabled = false
+            buttonAnswer4.isEnabled = false
+        }
+    }
 
-
+    private fun enableAnswerButtons() {
+        binding.apply {
+            buttonAnswer1.isEnabled = true
+            buttonAnswer2.isEnabled = true
+            buttonAnswer3.isEnabled = true
+            buttonAnswer4.isEnabled = true
+        }
+    }
     private fun loadAnswersFromStorage(word: String) {
-        // Pobierz referencję do pliku JSON w Storage
-        val storageRef = storage.reference.child("answers.json")
-
-        // Pobierz plik JSON z Storage
-        storageRef.getBytes(1024 * 1024) // Pobierz maksymalnie 1 MB danych
+        val storageRef = storage.reference.child("betterAnswers.json")
+        storageRef.getBytes(1024 * 1024)
             .addOnSuccessListener { bytes ->
                 val jsonString = String(bytes)
                 try {
-                    // Parsuj JSON
                     val jsonObject = JSONObject(jsonString)
                     val categories = jsonObject.getJSONObject("categories")
-
-                    // Iteruj przez kategorie
                     categories.keys().forEach { categoryKey ->
                         val category = categories.getJSONObject(categoryKey)
                         val words = category.getJSONArray("words")
-
-                        // Iteruj przez słowa w danej kategorii
                         for (i in 0 until words.length()) {
                             val jsonWord = words.getJSONObject(i)
                             val wordPl = jsonWord.getString("pl")
                             if (wordPl == word) {
-                                // Jeśli słowo jest tym, które wylosowaliśmy, ustaw odpowiedzi na przyciskach
                                 val answers = jsonWord.getJSONArray("answers")
                                 binding.apply {
                                     buttonAnswer1.text = answers.getString(0)
@@ -289,6 +315,9 @@ Log.d("Boo","$isCorrect")
                                     buttonAnswer3.text = answers.getString(2)
                                     buttonAnswer4.text = answers.getString(3)
                                 }
+                                // Odblokowujemy przyciski odpowiedzi
+                                isAnswered = false
+                                enableAnswerButtons()
                                 return@addOnSuccessListener
                             }
                         }
