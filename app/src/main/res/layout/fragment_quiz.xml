@@ -66,6 +66,16 @@
 
         </LinearLayout>
 
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="100"
+            android:progress="100"
+            android:progressTint="#00BCD4" /> <!-- Początkowy postęp ustawiony na 100% -->
+
+
         <TextView
             android:id="@+id/QuestiontextView"
             android:layout_width="match_parent"

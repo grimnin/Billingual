@@ -1,4 +1,7 @@
+package com.example.myapplication.fragments.quiz
+
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -8,7 +11,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentQuizBinding
-import com.example.myapplication.fragments.quiz.Word
+import com.example.myapplication.fragments.MenuFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -25,6 +28,8 @@ class QuizFragment : Fragment() {
     private val storage = Firebase.storage
     private var isAnswered = false
     private val selectedWords = mutableSetOf<String>()
+    private lateinit var countDownTimer: CountDownTimer
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -89,10 +94,13 @@ class QuizFragment : Fragment() {
                                             val wordEng = randomWord.pl
                                             binding.QuestiontextView.text = wordEng
                                             loadAnswersFromStorage(randomWord.pl)
+                                            startCountdownTimer()
                                             attemptCount++
+
                                         } else {
-                                            Log.d("QuizFragment", "No available words")
+                                            Log.d("com.example.myapplication.fragments.quiz.QuizFragment", "No available words")
                                         }
+
                                     }
                                 }
                                 .addOnFailureListener { exception ->
@@ -101,10 +109,10 @@ class QuizFragment : Fragment() {
                         }
                     }
                     .addOnFailureListener { exception ->
-                        Log.e("QuizFragment", "Error getting categories", exception)
+                        Log.e("com.example.myapplication.fragments.quiz.QuizFragment", "Error getting categories", exception)
                     }
             } else {
-                Log.d("QuizFragment", "User has used all attempts")
+                Log.d("com.example.myapplication.fragments.quiz.QuizFragment", "User has used all attempts")
             }
         }
     }
@@ -129,7 +137,7 @@ class QuizFragment : Fragment() {
         }
         val randomIndex = (weights.indices).random()
         val selectedWord = selectableWords[weights[randomIndex]]
-        Log.d("QuizFragment", "Random word: ${selectedWord.eng}, mistakeCounter: ${selectedWord.mistakeCounter}, correctCount: ${selectedWord.correctCount}, total: ${selectedWord.total}")
+        Log.d("com.example.myapplication.fragments.quiz.QuizFragment", "Random word: ${selectedWord.eng}, mistakeCounter: ${selectedWord.mistakeCounter}, correctCount: ${selectedWord.correctCount}, total: ${selectedWord.total}")
         return selectedWord
     }
 
@@ -142,18 +150,41 @@ class QuizFragment : Fragment() {
             isCorrect = checkIfAnswerIsCorrect(selectedAnswer)
             Log.d("Boo", "$isCorrect")
 
+            // Zatrzymaj odliczanie czasu
+            countDownTimer.cancel()
+
             // Zmiana tła przycisku na podstawie poprawności odpowiedzi
-
-
             if (attemptCount < 5) {
                 // Resetowanie tła przycisków po kilku sekundach
                 Handler(Looper.getMainLooper()).postDelayed({
                     resetButtonBackgrounds()
                     getRandomWordForQuiz()
                 }, 1000) // 2000 ms = 2 sekundy
+            } else {
+                goToMenuFragment()
             }
         }
     }
+
+    private fun goToMenuFragment() {
+        Handler(Looper.getMainLooper()).postDelayed({
+            val fragmentManager = requireActivity().supportFragmentManager
+
+            // Usuń fragment QuizFragment z kontenera
+            val quizFragment = fragmentManager.findFragmentById(R.id.fragmentContainerView2)
+            quizFragment?.let {
+                fragmentManager.beginTransaction().remove(it).commit()
+            }
+
+            // Wyświetl MenuFragment w kontenerze
+            val menuFragment = MenuFragment()
+            fragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainerView2, menuFragment)
+                .commit()
+        }, 1000) // 2000 ms = 2 sekundy
+    }
+
+
 
     // Resetowanie tła przycisków do domyślnego
     private fun resetButtonBackgrounds() {
@@ -207,6 +238,8 @@ class QuizFragment : Fragment() {
                                         val snapshot = transaction.get(wordRef)
                                         val currentCorrectCount = snapshot.getLong("correctCount") ?: 0
                                         val currentMistakeCounter = snapshot.getLong("mistakeCounter") ?: 0
+                                        val currentTotal = snapshot.getLong("total") ?: 0
+                                        transaction.update(wordRef, "total", currentTotal + 1)
                                         if (isCorrect) {
                                             transaction.update(wordRef, "correctCount", currentCorrectCount + 1)
                                         } else {
@@ -214,9 +247,9 @@ class QuizFragment : Fragment() {
                                         }
                                         null
                                     }.addOnSuccessListener {
-                                        Log.d("QuizFragment", "Word stats updated successfully")
+                                        Log.d("com.example.myapplication.fragments.quiz.QuizFragment", "Word stats updated successfully")
                                     }.addOnFailureListener { exception ->
-                                        Log.e("QuizFragment", "Error updating word stats", exception)
+                                        Log.e("com.example.myapplication.fragments.quiz.QuizFragment", "Error updating word stats", exception)
                                     }
                                 }
                             }
@@ -224,6 +257,7 @@ class QuizFragment : Fragment() {
                 }
         }
     }
+
 
     private fun checkIfAnswerIsCorrect(selectedAnswer: String): Boolean {
         val currentWord = binding.QuestiontextView.text.toString()
@@ -260,18 +294,18 @@ class QuizFragment : Fragment() {
                                     it.setBackgroundResource(backgroundDrawable)
                                 }
                                 updateAnswerIndicator(isCorrect)
-                                Log.d("QuizFragment", "Is answer correct: $isCorrect, selected: $selectedAnswer ")
+                                Log.d("com.example.myapplication.fragments.quiz.QuizFragment", "Is answer correct: $isCorrect, selected: $selectedAnswer ")
                                 updateWordStats(isCorrect)
                                 return@addOnSuccessListener
                             }
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e("QuizFragment", "Error parsing JSON", e)
+                    Log.e("com.example.myapplication.fragments.quiz.QuizFragment", "Error parsing JSON", e)
                 }
             }
             .addOnFailureListener { exception ->
-                Log.e("QuizFragment", "Error loading JSON from storage", exception)
+                Log.e("com.example.myapplication.fragments.quiz.QuizFragment", "Error loading JSON from storage", exception)
             }
         return false
     }
@@ -323,11 +357,31 @@ class QuizFragment : Fragment() {
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e("QuizFragment", "Error parsing JSON", e)
+                    Log.e("com.example.myapplication.fragments.quiz.QuizFragment", "Error parsing JSON", e)
                 }
             }
             .addOnFailureListener { exception ->
-                Log.e("QuizFragment", "Error loading JSON from storage", exception)
+                Log.e("com.example.myapplication.fragments.quiz.QuizFragment", "Error loading JSON from storage", exception)
             }
     }
+    private fun startCountdownTimer() {
+        countDownTimer = object : CountDownTimer(5000, 1000) { // Odliczanie z 5 sekund
+            override fun onTick(millisUntilFinished: Long) {
+                // Aktualizacja paska postępu, na przykład zmieniając jego szerokość
+                val progress = millisUntilFinished.toFloat() / 5000f * 100f
+                binding.progressBar.progress = progress.toInt()
+
+            }
+
+            override fun onFinish() {
+                binding.progressBar.setProgress(0)
+                // Jeśli odliczanie się skończyło, traktuj to jako udzielenie złej odpowiedzi
+                if (!isAnswered) {
+                    checkAnswer("") // Pusty ciąg oznacza brak odpowiedzi
+
+                }
+            }
+        }.start()
+    }
+
 }
