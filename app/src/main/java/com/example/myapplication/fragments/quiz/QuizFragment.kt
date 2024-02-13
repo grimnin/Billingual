@@ -238,8 +238,24 @@ class QuizFragment : Fragment() {
                                         val snapshot = transaction.get(wordRef)
                                         val currentCorrectCount = snapshot.getLong("correctCount") ?: 0
                                         val currentMistakeCounter = snapshot.getLong("mistakeCounter") ?: 0
+                                        var madeMistake = snapshot.getBoolean("madeMistake") ?: false
                                         val currentTotal = snapshot.getLong("total") ?: 0
+
+                                        // Jeśli wystąpił błąd, ustaw flagę madeMistake na true
+                                        if (!isCorrect) {
+                                            madeMistake = true
+                                        }
+
+                                        // Jeśli wylosowane słowo ma madeMistake ustawione na true
+                                        // i liczba correctCount jest o 3 większa od mistakeCounter,
+                                        // ustaw madeMistake na false
+                                        if (madeMistake && currentCorrectCount >= currentMistakeCounter + 3) {
+                                            madeMistake = false
+                                        }
+
+                                        // Aktualizacja statystyk słowa
                                         transaction.update(wordRef, "total", currentTotal + 1)
+                                        transaction.update(wordRef, "madeMistake", madeMistake)
                                         if (isCorrect) {
                                             transaction.update(wordRef, "correctCount", currentCorrectCount + 1)
                                         } else {
@@ -257,6 +273,7 @@ class QuizFragment : Fragment() {
                 }
         }
     }
+
 
 
     private fun checkIfAnswerIsCorrect(selectedAnswer: String): Boolean {
@@ -343,11 +360,16 @@ class QuizFragment : Fragment() {
                             val wordPl = jsonWord.getString("pl")
                             if (wordPl == word) {
                                 val answers = jsonWord.getJSONArray("answers")
+                                val shuffledAnswers = mutableListOf<String>()
+                                for (j in 0 until answers.length()) {
+                                    shuffledAnswers.add(answers.getString(j))
+                                }
+                                shuffledAnswers.shuffle() // Losowe rozmieszczenie odpowiedzi
                                 binding.apply {
-                                    buttonAnswer1.text = answers.getString(0)
-                                    buttonAnswer2.text = answers.getString(1)
-                                    buttonAnswer3.text = answers.getString(2)
-                                    buttonAnswer4.text = answers.getString(3)
+                                    buttonAnswer1.text = shuffledAnswers[0]
+                                    buttonAnswer2.text = shuffledAnswers[1]
+                                    buttonAnswer3.text = shuffledAnswers[2]
+                                    buttonAnswer4.text = shuffledAnswers[3]
                                 }
                                 // Odblokowujemy przyciski odpowiedzi
                                 isAnswered = false
@@ -364,8 +386,9 @@ class QuizFragment : Fragment() {
                 Log.e("com.example.myapplication.fragments.quiz.QuizFragment", "Error loading JSON from storage", exception)
             }
     }
+
     private fun startCountdownTimer() {
-        countDownTimer = object : CountDownTimer(5000, 1000) { // Odliczanie z 5 sekund
+        countDownTimer = object : CountDownTimer(5000, 1) { // Odliczanie z 5 sekund
             override fun onTick(millisUntilFinished: Long) {
                 // Aktualizacja paska postępu, na przykład zmieniając jego szerokość
                 val progress = millisUntilFinished.toFloat() / 5000f * 100f
