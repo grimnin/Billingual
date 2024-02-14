@@ -83,6 +83,8 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.androidx.appcompat)
     implementation("com.google.firebase:firebase-storage:20.3.0")
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.viewpager2)
 
 
     testImplementation(libs.junit)

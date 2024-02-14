@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentMenuBinding
+import com.example.myapplication.fragments.mistakes.MistakeFragment
 import com.example.myapplication.fragments.quiz.QuizFragment
 
 
@@ -26,6 +27,14 @@ class MenuFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.QuizImage.setOnClickListener {
             val fragment= QuizFragment()
+            requireActivity()
+                .supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragmentContainerView2,fragment)
+                .commit()
+        }
+        binding.MistakesImage.setOnClickListener {
+            val fragment= MistakeFragment()
             requireActivity()
                 .supportFragmentManager
                 .beginTransaction()
