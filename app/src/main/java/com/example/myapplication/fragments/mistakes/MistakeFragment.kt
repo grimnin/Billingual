@@ -58,6 +58,7 @@ class MistakeFragment : Fragment() {
 
         // Dodaj obsługę przesuwania palcem nad ViewPagerem
         viewPager.isUserInputEnabled = true // Włącz obsługę przesuwania palcem
+        binding.viewPager.visibility = View.GONE // Ukryj ViewPager na początku
     }
 
     private fun setupFirebase() {
@@ -99,11 +100,22 @@ class MistakeFragment : Fragment() {
         }
     }
 
+    private fun updateViewPagerVisibility(showViewPager: Boolean) {
+        if (showViewPager) {
+            binding.recyclerView.visibility = View.GONE
+            binding.viewPager.visibility = View.VISIBLE
+        } else {
+            binding.recyclerView.visibility = View.VISIBLE
+            binding.viewPager.visibility = View.GONE
+        }
+    }
+
     private fun updateRecyclerView() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         val wrongAnswersAdapter = WrongAnswersAdapter(wrongAnswersList, object : WrongAnswersAdapter.OnItemClickListener {
             override fun onItemClick(position: Int) {
                 viewPager.currentItem = position
+                updateViewPagerVisibility(true) // Po kliknięciu w pozycję RecyclerView, pokaż ViewPager
             }
         })
         recyclerView.adapter = wrongAnswersAdapter
@@ -115,11 +127,22 @@ class MistakeFragment : Fragment() {
             val bundle = Bundle().apply {
                 putString("polishTranslation", word.pl)
                 putString("englishTranslation", word.eng)
+                putString("numberOfCorrectAnswers",word.correctCount.toString())
+                putString("numberOfWrongAnswers",word.mistakeCounter.toString()) // poprawione
             }
             wordDetailsFragment.arguments = bundle
             wordDetailsFragment
         }
         val adapter = MistakePagerAdapter(fragmentList, requireActivity().supportFragmentManager, lifecycle)
         viewPager.adapter = adapter
+
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                recyclerView.scrollToPosition(position)
+            }
+        })
     }
+
 }
+
+
