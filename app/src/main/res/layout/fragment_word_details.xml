@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvPolishTranslation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="szmobias" />
+
+    <TextView
+        android:id="@+id/tvEnglishTranslation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="tobias" />
+
+    <!-- Inne informacje o słówku -->
+
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back" />
+
+    <Button
+        android:id="@+id/btnDelete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Delete Word from Mistakes" />
+
+</LinearLayout>

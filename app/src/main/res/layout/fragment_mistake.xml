@@ -29,6 +29,12 @@
 
                 android:layout_height="wrap_content"></androidx.recyclerview.widget.RecyclerView>
 
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPager"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layoutManager="androidx.viewpager2.widget.ViewPager2\$LinearLayoutManager" />
+
             <Button
                 android:id="@+id/buttonBackToMenu"
                 android:layout_width="match_parent"

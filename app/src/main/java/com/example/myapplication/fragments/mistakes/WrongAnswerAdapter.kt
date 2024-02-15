@@ -17,7 +17,6 @@ class WrongAnswersAdapter(
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val plTextView: TextView = itemView.findViewById(R.id.plTextView)
-        val engTextView: TextView = itemView.findViewById(R.id.engTextView)
 
         init {
             itemView.setOnClickListener {
@@ -38,10 +37,10 @@ class WrongAnswersAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val wrongAnswer = wrongAnswersList[position]
         holder.plTextView.text = wrongAnswer.pl
-        holder.engTextView.text = wrongAnswer.eng
     }
 
     override fun getItemCount(): Int {
         return wrongAnswersList.size
     }
 }
+

@@ -2,9 +2,6 @@ package com.example.myapplication.fragments.mistakes
 
 import WrongAnswersAdapter
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,22 +18,20 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class MistakeFragment : Fragment() {
 
+    private lateinit var viewPager: ViewPager2
     private lateinit var recyclerView: RecyclerView
-    private lateinit var wrongAnswersAdapter: WrongAnswersAdapter
-    private var wrongAnswersList = mutableListOf<WrongAnswer>() // Lista błędnych odpowiedzi
-    private lateinit var viewPager:ViewPager2
-
     private lateinit var firestore: FirebaseFirestore
     private lateinit var auth: FirebaseAuth
-    private lateinit var binding:FragmentMistakeBinding
+    private lateinit var binding: FragmentMistakeBinding
+    private var wrongAnswersList = mutableListOf<WrongAnswer>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding= FragmentMistakeBinding.inflate(inflater,container,false)
+        binding = FragmentMistakeBinding.inflate(inflater, container, false)
+        viewPager = binding.viewPager
         recyclerView = binding.recyclerView
-
         return binding.root
     }
 
@@ -44,23 +39,25 @@ class MistakeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupFirebase()
         fetchWrongAnswers()
+
         binding.buttonBackToMenu.setOnClickListener {
-            Handler(Looper.getMainLooper()).postDelayed({
-                val fragmentManager = requireActivity().supportFragmentManager
+            val fragmentManager = requireActivity().supportFragmentManager
 
-                // Usuń fragment QuizFragment z kontenera
-                val quizFragment = fragmentManager.findFragmentById(R.id.fragmentContainerView2)
-                quizFragment?.let {
-                    fragmentManager.beginTransaction().remove(it).commit()
-                }
+            // Usuń fragment QuizFragment z kontenera
+            val quizFragment = fragmentManager.findFragmentById(R.id.fragmentContainerView2)
+            quizFragment?.let {
+                fragmentManager.beginTransaction().remove(it).commit()
+            }
 
-                // Wyświetl MenuFragment w kontenerze
-                val menuFragment = MenuFragment()
-                fragmentManager.beginTransaction()
-                    .replace(R.id.fragmentContainerView2, menuFragment)
-                    .commit()
-            }, 1000)
+            // Wyświetl MenuFragment w kontenerze
+            val menuFragment = MenuFragment()
+            fragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainerView2, menuFragment)
+                .commit()
         }
+
+        // Dodaj obsługę przesuwania palcem nad ViewPagerem
+        viewPager.isUserInputEnabled = true // Włącz obsługę przesuwania palcem
     }
 
     private fun setupFirebase() {
@@ -83,7 +80,6 @@ class MistakeFragment : Fragment() {
                             .addOnSuccessListener { words ->
                                 for (wordDoc in words) {
                                     val word = wordDoc.toObject(Word::class.java)
-                                    // Dodaj błędne odpowiedzi do listy
                                     wrongAnswersList.add(
                                         WrongAnswer(
                                             pl = word.pl,
@@ -95,29 +91,35 @@ class MistakeFragment : Fragment() {
                                         )
                                     )
                                 }
-                                // Zaktualizuj RecyclerView
                                 updateRecyclerView()
+                                updateViewPager()
                             }
                     }
                 }
         }
     }
 
-    interface OnItemClickListener {
-        fun onItemClick(position: Int)
-    }
-
     private fun updateRecyclerView() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        wrongAnswersAdapter = WrongAnswersAdapter(wrongAnswersList, object : WrongAnswersAdapter.OnItemClickListener {
+        val wrongAnswersAdapter = WrongAnswersAdapter(wrongAnswersList, object : WrongAnswersAdapter.OnItemClickListener {
             override fun onItemClick(position: Int) {
-                // Tutaj możesz wykonać akcję po kliknięciu na element RecyclerView
-                // Na przykład wyświetlić log z numerem elementu
-                Log.d("MistakeFragment", "Clicked item at position $position")
+                viewPager.currentItem = position
             }
         })
         recyclerView.adapter = wrongAnswersAdapter
     }
 
+    private fun updateViewPager() {
+        val fragmentList = wrongAnswersList.map { word ->
+            val wordDetailsFragment = WordDetailsFragment()
+            val bundle = Bundle().apply {
+                putString("polishTranslation", word.pl)
+                putString("englishTranslation", word.eng)
+            }
+            wordDetailsFragment.arguments = bundle
+            wordDetailsFragment
+        }
+        val adapter = MistakePagerAdapter(fragmentList, requireActivity().supportFragmentManager, lifecycle)
+        viewPager.adapter = adapter
+    }
 }
-
