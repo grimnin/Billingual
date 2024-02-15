@@ -42,5 +42,6 @@ class WrongAnswersAdapter(
     override fun getItemCount(): Int {
         return wrongAnswersList.size
     }
+    
 }
 

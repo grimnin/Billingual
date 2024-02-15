@@ -121,6 +121,7 @@ class MistakeFragment : Fragment() {
         recyclerView.adapter = wrongAnswersAdapter
     }
 
+
     private fun updateViewPager() {
         val fragmentList = wrongAnswersList.map { word ->
             val wordDetailsFragment = WordDetailsFragment()
@@ -141,6 +142,16 @@ class MistakeFragment : Fragment() {
                 recyclerView.scrollToPosition(position)
             }
         })
+    }
+    fun deleteItemAndUpdate(position: Int) {
+        wrongAnswersList.removeAt(position)
+        recyclerView.adapter?.notifyItemRemoved(position)
+        recyclerView.adapter?.notifyItemRangeChanged(position, wrongAnswersList.size)
+    }
+
+    fun setCurrentItem(position: Int) {
+        viewPager.currentItem = position
+        updateViewPagerVisibility(true)
     }
 
 }
