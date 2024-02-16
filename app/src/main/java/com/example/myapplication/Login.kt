@@ -131,7 +131,7 @@ class Login : ComponentActivity() {
                     //FirebaseOperations(this).copyAnimalDocument(auth.currentUser?.uid ?: "")
                 } else {
                     navigateToMainActivity()
-                    FirebaseOperations(this).updateUsersScore(auth.currentUser?.uid ?: "")
+                   // FirebaseOperations(this).updateUsersScore(auth.currentUser?.uid ?: "")
                 }
             }
         }

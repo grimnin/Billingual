@@ -76,7 +76,7 @@ class FirebaseOperations(private val context: Context) {
         }
     }
 
-    fun updateUsersScore(userId: String) {
+    /*fun updateUsersScore(userId: String) {
         val userDocRef = db.collection("users").document(userId)
 
         // Collection reference for 'stats' subcollection
@@ -120,7 +120,7 @@ class FirebaseOperations(private val context: Context) {
             // Obsłuż błąd pobierania dokumentów
             // W praktyce warto dodać odpowiednie logi lub obsługę błędów
         }
-    }
+    }*/
 
 }
 

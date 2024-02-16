@@ -24,6 +24,7 @@ class MistakeFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: FragmentMistakeBinding
     private var wrongAnswersList = mutableListOf<WrongAnswer>()
+    private var selectedPosition: Int = -1
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,22 +44,26 @@ class MistakeFragment : Fragment() {
         binding.buttonBackToMenu.setOnClickListener {
             val fragmentManager = requireActivity().supportFragmentManager
 
-            // Usuń fragment QuizFragment z kontenera
             val quizFragment = fragmentManager.findFragmentById(R.id.fragmentContainerView2)
             quizFragment?.let {
                 fragmentManager.beginTransaction().remove(it).commit()
             }
 
-            // Wyświetl MenuFragment w kontenerze
             val menuFragment = MenuFragment()
             fragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainerView2, menuFragment)
                 .commit()
         }
 
-        // Dodaj obsługę przesuwania palcem nad ViewPagerem
-        viewPager.isUserInputEnabled = true // Włącz obsługę przesuwania palcem
-        binding.viewPager.visibility = View.GONE // Ukryj ViewPager na początku
+        viewPager.isUserInputEnabled = true
+        binding.viewPager.visibility = View.GONE
+
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                selectedPosition = position
+            }
+        })
     }
 
     private fun setupFirebase() {
@@ -79,7 +84,7 @@ class MistakeFragment : Fragment() {
                             .document("word_stats").collection("categories").document(categoryId)
                             .collection("words").whereEqualTo("madeMistake", true).get()
                             .addOnSuccessListener { words ->
-                                for (wordDoc in words) {
+                                for ((index, wordDoc) in words.withIndex()) {
                                     val word = wordDoc.toObject(Word::class.java)
                                     wrongAnswersList.add(
                                         WrongAnswer(
@@ -93,20 +98,29 @@ class MistakeFragment : Fragment() {
                                     )
                                 }
                                 updateRecyclerView()
-                                updateViewPager()
                             }
                     }
                 }
         }
     }
 
-    private fun updateViewPagerVisibility(showViewPager: Boolean) {
-        if (showViewPager) {
-            binding.recyclerView.visibility = View.GONE
-            binding.viewPager.visibility = View.VISIBLE
-        } else {
-            binding.recyclerView.visibility = View.VISIBLE
-            binding.viewPager.visibility = View.GONE
+    private fun updateViewPager() {
+        if (selectedPosition != -1) {
+            val fragmentList = mutableListOf<Fragment>()
+            for (wrongAnswer in wrongAnswersList) {
+                val wordDetailsFragment = WordDetailsFragment()
+                val bundle = Bundle().apply {
+                    putString("polishTranslation", wrongAnswer.pl)
+                    putString("englishTranslation", wrongAnswer.eng)
+                    putString("numberOfCorrectAnswers", wrongAnswer.correctCount.toString())
+                    putString("numberOfWrongAnswers", wrongAnswer.mistakeCounter.toString())
+                }
+                wordDetailsFragment.arguments = bundle
+                fragmentList.add(wordDetailsFragment)
+            }
+            val adapter = MistakePagerAdapter(fragmentList, requireActivity().supportFragmentManager, lifecycle)
+            viewPager.adapter = adapter
+            viewPager.setCurrentItem(selectedPosition, false)
         }
     }
 
@@ -114,35 +128,12 @@ class MistakeFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         val wrongAnswersAdapter = WrongAnswersAdapter(wrongAnswersList, object : WrongAnswersAdapter.OnItemClickListener {
             override fun onItemClick(position: Int) {
-                viewPager.currentItem = position
-                updateViewPagerVisibility(true) // Po kliknięciu w pozycję RecyclerView, pokaż ViewPager
+                selectedPosition = position
+                viewPager.visibility = View.VISIBLE
+                recyclerView.visibility = View.GONE
+                updateViewPager()
             }
         })
         recyclerView.adapter = wrongAnswersAdapter
     }
-
-    private fun updateViewPager() {
-        val fragmentList = wrongAnswersList.map { word ->
-            val wordDetailsFragment = WordDetailsFragment()
-            val bundle = Bundle().apply {
-                putString("polishTranslation", word.pl)
-                putString("englishTranslation", word.eng)
-                putString("numberOfCorrectAnswers",word.correctCount.toString())
-                putString("numberOfWrongAnswers",word.mistakeCounter.toString()) // poprawione
-            }
-            wordDetailsFragment.arguments = bundle
-            wordDetailsFragment
-        }
-        val adapter = MistakePagerAdapter(fragmentList, requireActivity().supportFragmentManager, lifecycle)
-        viewPager.adapter = adapter
-
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                recyclerView.scrollToPosition(position)
-            }
-        })
-    }
-
 }
-
-
