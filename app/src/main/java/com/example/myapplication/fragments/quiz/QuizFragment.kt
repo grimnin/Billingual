@@ -1,5 +1,6 @@
 package com.example.myapplication.fragments.quiz
 
+import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
@@ -13,6 +14,7 @@ import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentQuizBinding
 import com.example.myapplication.fragments.MenuFragment
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -252,7 +254,7 @@ class QuizFragment : Fragment() {
                                         if (madeMistake && currentCorrectCount >= currentMistakeCounter + 3) {
                                             madeMistake = false
                                         }
-
+updateScore(isCorrect)
                                         // Aktualizacja statystyk słowa
                                         transaction.update(wordRef, "total", currentTotal + 1)
                                         transaction.update(wordRef, "madeMistake", madeMistake)
@@ -326,6 +328,23 @@ class QuizFragment : Fragment() {
             }
         return false
     }
+    private fun updateScore(isCorrect: Boolean) {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            val userId = currentUser.uid
+            val userRef = firestore.collection("users").document(userId)
+
+            // Atomowa operacja aktualizacji pola "score"
+            userRef.update("score", FieldValue.increment(if (isCorrect) 1 else 0))
+                .addOnSuccessListener {
+                    Log.d(TAG, "User's score updated successfully")
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "Error updating user's score", e)
+                }
+        }
+    }
+
 
     private fun disableAnswerButtons() {
         binding.apply {
@@ -406,5 +425,6 @@ class QuizFragment : Fragment() {
             }
         }.start()
     }
+
 
 }

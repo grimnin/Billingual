@@ -42,7 +42,7 @@
             android:name=".MainActivity"
             android:theme="@style/Theme.MyApplication.AppCompat"
             android:exported="false"
-
+            android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait"
             >
 

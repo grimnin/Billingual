@@ -249,7 +249,8 @@ class Login : ComponentActivity() {
             "email" to email,
             "login" to login,
             "role" to "user",
-            "score" to 0
+            "score" to 0,
+            "uid" to FirebaseAuth.getInstance().currentUser?.uid
         )
 
         FirebaseFirestore.getInstance().collection("users")

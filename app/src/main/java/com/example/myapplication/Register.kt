@@ -61,7 +61,8 @@ class Register : ComponentActivity() {
                                 "email" to inputEmail,
                                 "login" to inputLogin,
                                 "role" to "user",
-                                "score" to 0
+                                "score" to 0,
+                                "uid" to FirebaseAuth.getInstance().currentUser?.uid
                                 // Add other user information if available
                             )
 
