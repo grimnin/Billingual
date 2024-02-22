@@ -27,7 +27,7 @@
             android:layout_height="match_parent">
 
             <LinearLayout
-                android:layout_width="208dp"
+                android:layout_width="204dp"
                 android:layout_height="225dp"
                 android:orientation="vertical">
 
@@ -42,12 +42,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="Words"
+                    android:text="@string/word_quiz"
                     android:textSize="26sp" />
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="208dp"
+                android:layout_width="204dp"
                 android:layout_height="225dp"
                 android:orientation="vertical">
 
@@ -62,7 +62,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="Grammar"
+                    android:text="@string/grammar"
                     android:textSize="26sp" />
             </LinearLayout>
 
@@ -74,7 +74,7 @@
             android:layout_height="match_parent">
 
             <LinearLayout
-                android:layout_width="208dp"
+                android:layout_width="204dp"
                 android:layout_height="225dp"
                 android:orientation="vertical">
 
@@ -89,12 +89,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="Mistakes"
+                    android:text="@string/mistakes"
                     android:textSize="26sp" />
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="208dp"
+                android:layout_width="204dp"
                 android:layout_height="225dp"
                 android:orientation="vertical">
 
@@ -109,7 +109,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="Rankings"
+                    android:text="@string/rankings"
                     android:textSize="26sp" />
             </LinearLayout>
         </TableRow>
@@ -119,7 +119,7 @@
             android:layout_height="match_parent">
 
             <LinearLayout
-                android:layout_width="208dp"
+                android:layout_width="204dp"
                 android:layout_height="225dp"
                 android:orientation="vertical">
 
@@ -134,12 +134,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="Settings"
+                    android:text="@string/settings"
                     android:textSize="26sp" />
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="208dp"
+                android:layout_width="204dp"
                 android:layout_height="225dp"
                 android:orientation="vertical">
 
@@ -154,7 +154,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="Game?"
+                    android:text="@string/admin_panel"
                     android:textSize="26sp" />
             </LinearLayout>
         </TableRow>

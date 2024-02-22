@@ -1,24 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Billingual</string>
-    <string name="title_activity_login" translatable="false">Login</string>
-    <string name="title_activity_register" translatable="false">Register</string>
-    <string name="default_web_client_id" translatable="false">566054808175-3a7mvq6q5k1jm02ap31i1bmcslf8kh9r.apps.googleusercontent.com</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
-    <!-- Preference Titles -->
-    <string name="messages_header" translatable="false">Messages</string>
-    <string name="sync_header" translatable="false">Sync</string>
-
-    <!-- Messages Preferences -->
-    <string name="signature_title" translatable="false">Your signature</string>
     <string name="reply_title">Change app language</string>
-
-    <!-- Sync Preferences -->
-    <string name="sync_title" translatable="false">Sync email periodically</string>
-    <string name="attachment_title" translatable="false">Download incoming attachments</string>
-    <string name="attachment_summary_on" translatable="false">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off" translatable="false">Only download attachments when manually requested</string>
     <string name="return_to_menu">Back to menu</string>
     <string name="register">Register</string>
     <string name="password">Password</string>

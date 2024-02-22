@@ -1,0 +1,55 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Preference
+        android:icon="@android:drawable/ic_menu_revert"
+        android:key="backButton"
+        android:title="@string/return_to_menu"
+        app:iconSpaceReserved="false" />
+    <PreferenceCategory app:title="@string/account">
+
+        <EditTextPreference
+            app:key="login"
+            app:title="@string/change_nick" />
+
+        <Preference
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:defaultValue="Default value"
+
+            android:singleLine="true"
+            android:title="@string/log_out"
+            app:key="logout" />
+
+        <ListPreference
+            app:defaultValue="reply"
+            app:entries="@array/reply_entries"
+            app:entryValues="@array/reply_values"
+            app:key="reply"
+            app:title="@string/reply_title"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Theme">
+
+        <SwitchPreferenceCompat
+            app:key="sync"
+            app:title="@string/switch_to_dark_mode" />
+
+        <SwitchPreferenceCompat
+            app:dependency="sync"
+            app:key="attachment"
+            app:summaryOff="@string/attachment_summary_off"
+            app:summaryOn="@string/attachment_summary_on"
+            app:title="@string/attachment_title" />
+
+    </PreferenceCategory>
+    <PreferenceCategory app:title="@string/actions">
+
+        <!-- Add a preference for back button -->
+
+    </PreferenceCategory>
+
+
+</PreferenceScreen>

@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import com.example.myapplication.databinding.MainActivityBinding
@@ -32,28 +31,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         googleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_SIGN_IN)
 
-        btn = binding.SignOutB
-        btn.setOnClickListener {
-            // Wyczyść SharedPreferences
-            clearSharedPreferences()
 
-            // Wyloguj się z Firebase
-            FirebaseAuth.getInstance().signOut()
-
-            // Wyloguj się z Google (jeżeli jesteś zalogowany przy użyciu Google Sign-In)
-            googleSignInClient.signOut()
-
-            // Przekieruj do ekranu logowania
-            redirectToLogin()
-
-            // Zakończ bieżącą aktywność
-            finish()
-        }
 
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
 
-        val welcomeMessage: TextView = binding.welcomeMessage
+
 
         // Sprawdź, czy użytkownik jest zalogowany
         val currentUser: FirebaseUser? = auth.currentUser
@@ -67,41 +50,14 @@ class MainActivity : AppCompatActivity() {
                     if (document.exists()) {
                         // Ustaw tekst zalogowanego użytkownika
                         val login: String = document.getString("login") ?: ""
-                        val welcomeText = "Witaj $login"
-                        welcomeMessage.text = welcomeText
+
                     }
                 }
                 .addOnFailureListener { exception ->
                     // Obsłuż błąd odczytu z Firestore
                     // W praktyce warto dodać odpowiednie logi lub obsługę błędów
                 }
-            btnTotal = binding.buttonIncreaseTotal
-            btnTotal.setOnClickListener {
-                val userDocumentRef = firestore.collection("users").document(uid)
-                val word1Ref = userDocumentRef.collection("stats")
-                    .document("word_stats")
-                    .collection("categories")
-                    .document("animals")
-                    .collection("words")
-                    .document("word1")
-                word1Ref.get().addOnSuccessListener { documentSnapshot ->
-                    if (documentSnapshot.exists()) {
-                        val currentTotal = documentSnapshot.getLong("total") ?: 0
 
-                        // Zaktualizuj wartość "total" w dokumencie word1
-                        val newTotal = currentTotal + 1
-                        word1Ref.update("total", newTotal)
-                            .addOnSuccessListener {
-                                // Jeżeli aktualizacja zakończyła się sukcesem
-                                // Tutaj możesz dodać odpowiednią logikę lub powiadomienie
-                            }
-                            .addOnFailureListener { exception ->
-                                // Obsłuż błąd aktualizacji
-                                // W praktyce warto dodać odpowiednie logi lub obsługę błędów
-                            }
-                    }
-                }
-            }
         } else {
             // Przekieruj do ekranu logowania, jeśli użytkownik nie jest zalogowany
             redirectToLogin()

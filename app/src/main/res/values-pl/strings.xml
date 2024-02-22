@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="return_to_menu">Wróć do menu</string>
+    <string name="register">Rejestracja</string>
+    <string name="password">Hasło</string>
+    <string name="switch_to_login">Wróć do logowania</string>
+    <string name="create_account">Utwórz konto</string>
+    <string name="enter_your_nick">Wprowadź nick</string>
+    <string name="confirm">Zatwierdź</string>
+    <string name="forgot_password">Zapomniałeś hasła?</string>
+    <string name="sign_in_with_google">Zaloguj z Google</string>
+    <string name="login">Logowanie</string>
+    <string name="score">Punty</string>
+    <string name="write_your_email_address">Wpisz swój adres mailowy</string>
+    <string name="change_password">Zmień hasło</string>
+    <string name="back_to_login">Wróć do logowania</string>
+    <string name="search_by_nick">Szukaj po nicku...</string>
+    <string name="search">Szukaj</string>
+    <string name="login_title">Logowanie</string>
+    <string name="word_quiz">Test ze słówek</string>
+    <string name="grammar">Gramatyka</string>
+    <string name="mistakes">Błędy</string>
+    <string name="rankings">Ranking</string>
+    <string name="settings">Ustawienia</string>
+    <string name="admin_panel">Panel admina</string>
+    <string name="account">Konto</string>
+    <string name="change_nick">Zmień nick</string>
+    <string name="switch_to_dark_mode">Przęłącz na tryb ciemny</string>
+    <string name="actions">Akcje</string>
+    <string name="log_out">Wyloguj</string>
+    <string name="reply_title">Zmiana języka</string>
+</resources>

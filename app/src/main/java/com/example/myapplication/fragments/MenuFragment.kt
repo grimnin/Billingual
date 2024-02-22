@@ -10,6 +10,7 @@ import com.example.myapplication.databinding.FragmentMenuBinding
 import com.example.myapplication.fragments.mistakes.MistakeFragment
 import com.example.myapplication.fragments.quiz.QuizFragment
 import com.example.myapplication.fragments.rank.Rank
+import com.example.myapplication.fragments.settings.SettingsFragment
 
 
 class MenuFragment : Fragment() {
@@ -44,6 +45,14 @@ class MenuFragment : Fragment() {
         }
         binding.RankingsImage.setOnClickListener {
             val fragment= Rank()
+            requireActivity()
+                .supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragmentContainerView2,fragment)
+                .commit()
+        }
+        binding.SettingsImage.setOnClickListener {
+            val fragment= SettingsFragment()
             requireActivity()
                 .supportFragmentManager
                 .beginTransaction()

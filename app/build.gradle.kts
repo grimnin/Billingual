@@ -85,6 +85,7 @@ dependencies {
     implementation("com.google.firebase:firebase-storage:20.3.0")
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.viewpager2)
+    implementation(libs.preference)
 
 
     testImplementation(libs.junit)

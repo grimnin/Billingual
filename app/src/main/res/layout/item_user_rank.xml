@@ -10,7 +10,7 @@
         android:layout_width="223dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Login"
+        android:text="@string/login"
         android:textSize="18sp" />
 
     <TextView
@@ -18,7 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Score"
+        android:text="@string/score"
         android:textSize="18sp" />
 
 </LinearLayout>
