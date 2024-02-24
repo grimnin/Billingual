@@ -2,8 +2,8 @@ package com.example.myapplication
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import com.example.myapplication.databinding.MainActivityBinding
@@ -14,19 +14,25 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
+import java.util.Locale
 
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: MainActivityBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
-    private lateinit var btn: Button
-    private lateinit var btnTotal: Button
+
     private lateinit var googleSignInClient: GoogleSignInClient
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Odczytaj preferencje językowe
+        val languageCode = loadLanguageFromSharedPreferences()
+
+        // Zastosuj wybraną lokalizację
+        setLocale(languageCode)
+
         binding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
         googleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -83,9 +89,17 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun clearSharedPreferences() {
+
+    private fun setLocale(languageCode: String) {
+        val locale = Locale(languageCode)
+        Locale.setDefault(locale)
+        val configuration = Configuration()
+        configuration.setLocale(locale)
+        baseContext.resources.updateConfiguration(configuration, baseContext.resources.displayMetrics)
+    }
+
+    private fun loadLanguageFromSharedPreferences(): String {
         val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.clear().apply()
+        return sharedPreferences.getString("language", getString(R.string.default_language_code)) ?: getString(R.string.default_language_code)
     }
 }

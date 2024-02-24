@@ -11,16 +11,14 @@
     <TextView
 
         android:id="@+id/textViewLoginText"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="162dp"
         android:layout_marginTop="92dp"
-        android:layout_marginEnd="163dp"
+        android:gravity="center"
         android:text="@string/login_title"
         android:textColor="@color/black"
         android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

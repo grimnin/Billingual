@@ -4,6 +4,8 @@ import FirebaseOperations
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -21,6 +23,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import java.util.Locale
 
 class Login : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -28,13 +31,46 @@ class Login : ComponentActivity() {
     private lateinit var client: GoogleSignInClient
     private lateinit var textViewGoogleNick: EditText
     private lateinit var buttonNickG: Button
+    private lateinit var languageCode:String
+    private lateinit var sharedPreferences: SharedPreferences
+    override fun onResume() {
+        super.onResume()
+        languageCode = loadLanguageFromSharedPreferences()
+showToast("resume - $languageCode")
+        // Zastosuj wybraną lokalizację
+        setLocale(languageCode)
+
+    }
+
+    override fun onPause() {
+        super.onPause()
+        languageCode = loadLanguageFromSharedPreferences()
+        showToast("pausen - $languageCode")
+        // Zastosuj wybraną lokalizację
+        setLocale(languageCode)
+
+    }
+    override fun onRestart() {
+        super.onRestart()
+        languageCode = loadLanguageFromSharedPreferences()
+        showToast("restart- $languageCode")
+        // Zastosuj wybraną lokalizację
+        setLocale(languageCode)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        languageCode = loadLanguageFromSharedPreferences()
+        showToast("create- $languageCode")
+        // Zastosuj wybraną lokalizację
+        setLocale(languageCode)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login)
+        // Odczytaj preferencje językowe
+
+
         auth = FirebaseAuth.getInstance()
 
-        val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+         sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         val userEmail = sharedPreferences.getString("userEmail", null)
 
         if (auth.currentUser != null && userEmail != null|| auth.currentUser?.isEmailVerified == true) {
@@ -73,7 +109,7 @@ class Login : ComponentActivity() {
         val loginButton: Button = findViewById(R.id.buttonLoginL)
         loginButton.setOnClickListener {
             preformLogin()
-            
+
         }
 
         val confirmButtonG: Button = findViewById(R.id.buttonNickG)
@@ -176,6 +212,8 @@ class Login : ComponentActivity() {
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
+        finish()
+
     }
 
     private fun preformLogin() {
@@ -238,7 +276,7 @@ class Login : ComponentActivity() {
     }
 
     private fun saveLoginToSharedPreferences(userEmail: String) {
-        val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+         sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         editor.putString("userEmail", userEmail)
         editor.apply()
@@ -262,5 +300,17 @@ class Login : ComponentActivity() {
             .addOnFailureListener { e ->
                 showToast("Error creating user document: ${e.localizedMessage}")
             }
+    }
+    private fun setLocale(languageCode: String) {
+        val locale = Locale(languageCode)
+        Locale.setDefault(locale)
+        val configuration = Configuration()
+        configuration.setLocale(locale)
+        baseContext.resources.updateConfiguration(configuration, baseContext.resources.displayMetrics)
+    }
+
+    private fun loadLanguageFromSharedPreferences(): String {
+         sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        return sharedPreferences.getString("language", getString(R.string.default_language_code)) ?: getString(R.string.default_language_code)
     }
 }

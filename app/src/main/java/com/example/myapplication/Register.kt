@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -9,6 +10,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import java.util.Locale
 
 class Register : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
@@ -17,6 +19,11 @@ class Register : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.register)
         auth = FirebaseAuth.getInstance()
+        // Odczytaj preferencje językowe
+        val languageCode = loadLanguageFromSharedPreferences()
+
+        // Zastosuj wybraną lokalizację
+        setLocale(languageCode)
 
         val switchToLogin: Button = findViewById(R.id.buttonSwitchToLoginR)
         switchToLogin.setOnClickListener {
@@ -146,5 +153,17 @@ class Register : ComponentActivity() {
 
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+    private fun setLocale(languageCode: String) {
+        val locale = Locale(languageCode)
+        Locale.setDefault(locale)
+        val configuration = Configuration()
+        configuration.setLocale(locale)
+        baseContext.resources.updateConfiguration(configuration, baseContext.resources.displayMetrics)
+    }
+
+    private fun loadLanguageFromSharedPreferences(): String {
+        val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        return sharedPreferences.getString("language", getString(R.string.default_language_code)) ?: getString(R.string.default_language_code)
     }
 }
