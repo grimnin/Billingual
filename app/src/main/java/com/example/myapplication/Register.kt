@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import FirebaseOperations
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -110,6 +111,8 @@ class Register : ComponentActivity() {
         user?.sendEmailVerification()
             ?.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+                    FirebaseOperations(this).addWordStatsSubcollection(auth.currentUser?.uid ?: "")
+                    FirebaseOperations(this).copyWordsToCategories(auth.currentUser?.uid ?: "")
                     showToast("Verification email sent to ${user.email}")
                 } else {
                     showToast("Failed to send verification email")

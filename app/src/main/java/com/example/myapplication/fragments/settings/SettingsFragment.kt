@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
+import android.widget.Toast
+import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -64,6 +66,58 @@ class SettingsFragment : PreferenceFragmentCompat() {
             redirectToLogin()
             true
         }
+        val changeNickPreference = findPreference<EditTextPreference>("login")
+
+        changeNickPreference?.setOnPreferenceChangeListener { preference, newValue ->
+            val newLogin = newValue.toString()
+            if (newLogin.isNotEmpty() && newLogin.length <= 10) {
+                // Sprawdź, czy nowy login nie istnieje jeszcze w bazie danych
+                checkIfLoginIsUnique(newLogin) { isUnique ->
+                    if (isUnique) {
+                        // Aktualizuj pole "login" w bazie danych Firestore
+                        updateLoginInFirestore(newLogin)
+                    } else {
+                        showToast("Login already exists. Choose a different login.")
+                    }
+                }
+            } else {
+                showToast("Login must not be empty and must be up to 10 characters long.")
+            }
+            true
+        }
+    }
+    private fun checkIfLoginIsUnique(login: String, callback: (Boolean) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        val usersCollection = db.collection("users")
+
+        usersCollection
+            .whereEqualTo("login", login)
+            .get()
+            .addOnSuccessListener { documents ->
+                callback.invoke(documents.isEmpty)
+            }
+            .addOnFailureListener { exception ->
+                showToast("Error checking login uniqueness: ${exception.localizedMessage}")
+                callback.invoke(false)
+            }
+    }
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
+
+    private fun updateLoginInFirestore(newLogin: String) {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        currentUser?.let { user ->
+            val userRef = firestore.collection("users").document(user.uid)
+            userRef.update("login", newLogin)
+                .addOnSuccessListener {
+                    showToast("Login updated successfully.")
+                }
+                .addOnFailureListener { e ->
+                    showToast("Error updating login: ${e.message}")
+                }
+        }
     }
 
     private fun setLocale(languageCode: String) {
@@ -106,6 +160,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private fun loadLanguageFromSharedPreferences(): String {
         return sharedPreferences.getString("language", getString(R.string.default_language_code)) ?: getString(R.string.default_language_code)
     }
+
 
     private fun clearSharedPreferences() {
         val selectedLanguage = loadLanguageFromSharedPreferences()
