@@ -144,18 +144,20 @@
                 android:orientation="vertical">
 
                 <ImageView
-                    android:id="@+id/Game_Image"
+                    android:id="@+id/Admin_Image"
                     android:layout_width="wrap_content"
                     android:layout_height="150dp"
-                    android:src="@drawable/quiz_icon" />
+                    android:src="@drawable/quiz_icon"
+                    tools:visibility="gone" />
 
                 <TextView
-                    android:id="@+id/Game_TextView"
+                    android:id="@+id/Admin_TextView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
                     android:text="@string/admin_panel"
-                    android:textSize="26sp" />
+                    android:textSize="26sp"
+                    tools:visibility="gone" />
             </LinearLayout>
         </TableRow>
 

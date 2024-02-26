@@ -89,7 +89,7 @@ class Rank : Fragment() {
     private fun addDummyData() {
         // Add dummy data for testing scroll position
         repeat(30) {
-            val dummyUser = User("DummyUserID$it", "dummy$it@example.com", "DummyUser$it", 15)
+            val dummyUser = User("DummyUserID$it", "dummy$it@example.com", "DummyUser$it", "user",15)
             userList.add(dummyUser)
         }
     }
