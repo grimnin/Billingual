@@ -8,8 +8,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
 import com.example.myapplication.User
+import com.google.firebase.firestore.FirebaseFirestore
 
-class UserAdapter(private val userList: List<User>) : RecyclerView.Adapter<UserAdapter.ViewHolder>() {
+class UserAdapter(private val userList: List<User>, private val onDataSetChanged: () -> Unit) : RecyclerView.Adapter<UserAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.user_item, parent, false)
@@ -39,9 +40,42 @@ class UserAdapter(private val userList: List<User>) : RecyclerView.Adapter<UserA
             pointsTextView.text = user.score.toString()
 
             // Możesz również ustawić słuchaczy dla przycisków, jeśli jest to konieczne
-            deleteButton.setOnClickListener { /* Obsługa kliknięcia */ }
-            changeRoleButton.setOnClickListener { /* Obsługa kliknięcia */ }
+            if (!user.role.equals("creator")) {
+                deleteButton.setOnClickListener { deleteUser(user) }
+                changeRoleButton.setOnClickListener { changeUserRole(user) }
+            }
         }
     }
 
+    private fun deleteUser(user: User) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Usuń dokument użytkownika z kolekcji Firestore
+        db.collection("users").document(user.uid)
+            .delete()
+            .addOnSuccessListener {
+                // Jeśli usunięcie zakończy się sukcesem, wykonaj odświeżenie
+                onDataSetChanged.invoke()
+            }
+            .addOnFailureListener { e ->
+                // Obsłuż ewentualny błąd
+            }
+    }
+
+    private fun changeUserRole(user: User) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Zmiana roli użytkownika
+        val newRole = if (user.role.equals("user") ) "mod" else "user"
+        db.collection("users").document(user.uid)
+            .update("role", newRole)
+            .addOnSuccessListener {
+                // Jeśli zmiana zakończy się sukcesem, wykonaj odświeżenie
+                onDataSetChanged.invoke()
+            }
+            .addOnFailureListener { e ->
+                // Obsłuż ewentualny błąd
+            }
+    }
 }
+

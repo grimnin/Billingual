@@ -32,7 +32,9 @@ class UserManagementFragment : Fragment() {
 
     private fun setupRecyclerView() {
         binding.userRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        userAdapter = UserAdapter(userList)
+        userAdapter = UserAdapter(userList) {
+            fetchUserData() // Odśwież dane po wykonaniu akcji przez adapter
+        }
         binding.userRecyclerView.adapter = userAdapter
     }
 
@@ -57,6 +59,4 @@ class UserManagementFragment : Fragment() {
                 // Obsłuż błąd pobierania danych
             }
     }
-
 }
-

@@ -83,7 +83,7 @@ private fun showAdminPanel(){
             .addOnSuccessListener { document ->
                 if (document != null) {
                     val role = document.getString("role")
-                    if (role == "creator") {
+                    if (role == "creator"||role=="mod") {
                         // Pokaż widoki związane z administratorem
                         binding.AdminImage.visibility = View.VISIBLE
                         binding.AdminTextView.visibility = View.VISIBLE
