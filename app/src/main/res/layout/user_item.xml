@@ -14,8 +14,8 @@
 
         <TextView
             android:id="@+id/nickTextView"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
+            android:layout_width="60dp"
+            android:layout_height="20dp"
             android:layout_weight="1"
             android:text="Nick"
             android:textAlignment="center"
@@ -23,8 +23,8 @@
 
         <TextView
             android:id="@+id/roleTextView"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
+            android:layout_width="60dp"
+            android:layout_height="20dp"
             android:layout_weight="1"
             android:text="Rola"
             android:textAlignment="center"
@@ -32,8 +32,8 @@
 
         <TextView
             android:id="@+id/pointsTextView"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
+            android:layout_width="60dp"
+            android:layout_height="20dp"
             android:layout_weight="1"
             android:text="Punkty"
             android:textAlignment="center"

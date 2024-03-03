@@ -1,6 +1,8 @@
 package com.example.myapplication.fragments.quiz
 
 import android.content.ContentValues.TAG
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
@@ -16,6 +18,7 @@ import com.example.myapplication.fragments.MenuFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import org.json.JSONObject
@@ -31,13 +34,14 @@ class QuizFragment : Fragment() {
     private var isAnswered = false
     private val selectedWords = mutableSetOf<String>()
     private lateinit var countDownTimer: CountDownTimer
-
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentQuizBinding.inflate(inflater, container, false)
+        sharedPreferences = requireActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         return binding.root
     }
 
@@ -68,8 +72,18 @@ class QuizFragment : Fragment() {
             if (attemptCount < 5) {
                 isCorrect = false
 
-                firestore.collection("users").document(userId).collection("stats")
-                    .document("word_stats").collection("categories").get()
+                // Pobieranie wybranych kategorii z SharedPreferences
+                val selectedCategories = sharedPreferences.getStringSet("selectedCategories", setOf())
+
+                // Utworzenie zapytania do Firestore z filtrem na wybrane kategorie
+                var query: Query = firestore.collection("users").document(userId).collection("stats")
+                    .document("word_stats").collection("categories")
+                if (selectedCategories != null && selectedCategories.isNotEmpty()) {
+                    query = query.whereIn("name", selectedCategories.toList())
+
+                }
+
+                query.get()
                     .addOnSuccessListener { categories ->
                         val allWords = mutableListOf<Word>()
                         val categoryCount = categories.size()

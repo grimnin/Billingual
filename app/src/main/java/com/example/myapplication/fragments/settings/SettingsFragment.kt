@@ -24,16 +24,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
-    private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var sharedPreferences: SharedPreferences
-
+    private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var changeNickPreference: EditTextPreference
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
-        googleSignInClient = GoogleSignIn.getClient(requireContext(), GoogleSignInOptions.DEFAULT_SIGN_IN)
         sharedPreferences = requireContext().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
 
         // Odczytaj preferencje językowe
@@ -42,12 +41,22 @@ class SettingsFragment : PreferenceFragmentCompat() {
         // Zastosuj wybraną lokalizację
         setLocale(selectedLanguage)
 
+        // Inicjalizacja GoogleSignInClient
+        googleSignInClient = GoogleSignIn.getClient(requireContext(), GoogleSignInOptions.DEFAULT_SIGN_IN)
+
         val changeLanguagePreference = findPreference<ListPreference>("reply")
 
         changeLanguagePreference?.setOnPreferenceChangeListener { preference, newValue ->
             val languageCode = newValue as String
             setLocale(languageCode)
             true
+        }
+
+        changeNickPreference = findPreference<EditTextPreference>("login")!!
+
+        // Pobierz aktualny login użytkownika i ustaw go jako summary w preferencji zmiany nicku
+        getCurrentUserLogin { login ->
+            changeNickPreference.summary = login
         }
 
         val backButtonPreference = findPreference<Preference>("backButton")
@@ -62,13 +71,24 @@ class SettingsFragment : PreferenceFragmentCompat() {
         logoutPreference?.setOnPreferenceClickListener {
             clearSharedPreferences()
             FirebaseAuth.getInstance().signOut()
-            googleSignInClient.signOut()
-            redirectToLogin()
+            googleSignInClient.signOut().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    showToast("Logged out successfully.")
+                    redirectToLogin()
+                } else {
+                    showToast("Failed to logout: ${task.exception?.message}")
+                }
+            }
             true
         }
-        val changeNickPreference = findPreference<EditTextPreference>("login")
 
-        changeNickPreference?.setOnPreferenceChangeListener { preference, newValue ->
+
+        changeNickPreference.setOnBindEditTextListener { editText ->
+            // Usuń tekst z pola po jego kliknięciu
+            editText.setText("")
+        }
+
+        changeNickPreference.setOnPreferenceChangeListener { preference, newValue ->
             val newLogin = newValue.toString()
             if (newLogin.isNotEmpty() && newLogin.length <= 10) {
                 // Sprawdź, czy nowy login nie istnieje jeszcze w bazie danych
@@ -76,6 +96,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     if (isUnique) {
                         // Aktualizuj pole "login" w bazie danych Firestore
                         updateLoginInFirestore(newLogin)
+                        // Zaktualizuj summary, aby wyświetlało nowy login
+                        changeNickPreference.summary = newLogin
                     } else {
                         showToast("Login already exists. Choose a different login.")
                     }
@@ -86,25 +108,31 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
     }
-    private fun checkIfLoginIsUnique(login: String, callback: (Boolean) -> Unit) {
-        val db = FirebaseFirestore.getInstance()
-        val usersCollection = db.collection("users")
 
-        usersCollection
-            .whereEqualTo("login", login)
-            .get()
-            .addOnSuccessListener { documents ->
-                callback.invoke(documents.isEmpty)
-            }
-            .addOnFailureListener { exception ->
-                showToast("Error checking login uniqueness: ${exception.localizedMessage}")
-                callback.invoke(false)
-            }
+    private fun getCurrentUserLogin(callback: (String) -> Unit) {
+        val currentUserUid = auth.currentUser?.uid
+        if (currentUserUid != null) {
+            val userRef = firestore.collection("users").document(currentUserUid)
+            userRef.get()
+                .addOnSuccessListener { document ->
+                    if (document != null && document.exists()) {
+                        val login = document.getString("login") ?: ""
+                        callback.invoke(login)
+                    } else {
+                        showToast("User document does not exist.")
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    showToast("Error getting user document: ${exception.localizedMessage}")
+                }
+        } else {
+            showToast("User is not logged in.")
+        }
     }
+
     private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
-
 
     private fun updateLoginInFirestore(newLogin: String) {
         val currentUser = FirebaseAuth.getInstance().currentUser
@@ -140,10 +168,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private fun redirectToMenuFragment() {
         val fragmentManager = requireActivity().supportFragmentManager
-        val quizFragment = fragmentManager.findFragmentById(R.id.fragmentContainerView2)
-        quizFragment?.let {
-            fragmentManager.beginTransaction().remove(it).commit()
-        }
         val menuFragment = MenuFragment()
         fragmentManager.beginTransaction()
             .replace(R.id.fragmentContainerView2, menuFragment)
@@ -161,11 +185,27 @@ class SettingsFragment : PreferenceFragmentCompat() {
         return sharedPreferences.getString("language", getString(R.string.default_language_code)) ?: getString(R.string.default_language_code)
     }
 
-
     private fun clearSharedPreferences() {
         val selectedLanguage = loadLanguageFromSharedPreferences()
         val editor = sharedPreferences.edit()
         editor.clear().apply()
         saveLanguageToSharedPreferences(selectedLanguage) // Zachowaj dane dotyczące lokalizacji
     }
+
+    private fun checkIfLoginIsUnique(login: String, callback: (Boolean) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        val usersCollection = db.collection("users")
+
+        usersCollection
+            .whereEqualTo("login", login)
+            .get()
+            .addOnSuccessListener { documents ->
+                callback.invoke(documents.isEmpty)
+            }
+            .addOnFailureListener { exception ->
+                showToast("Error checking login uniqueness: ${exception.localizedMessage}")
+                callback.invoke(false)
+            }
+    }
 }
+
