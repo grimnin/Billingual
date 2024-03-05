@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
@@ -24,15 +25,25 @@ class MainActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
     private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var sharedPreferences:SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+
         super.onCreate(savedInstanceState)
         // Odczytaj preferencje językowe
         val languageCode = loadLanguageFromSharedPreferences()
 
         // Zastosuj wybraną lokalizację
         setLocale(languageCode)
+        val isDarkModeEnabled = sharedPreferences.getBoolean("darkModeEnabled", false)
 
+        // Ustaw odpowiedni styl w zależności od trybu ciemnego
+        if (isDarkModeEnabled) {
+            setTheme(R.style.AppTheme_Dark)
+        } else {
+            setTheme(R.style.AppTheme_Light)
+        }
         setContentView(R.layout.main_activity)
         googleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_SIGN_IN)
         auth = FirebaseAuth.getInstance()

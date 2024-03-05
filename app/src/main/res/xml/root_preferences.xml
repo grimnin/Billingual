@@ -34,11 +34,11 @@
     <PreferenceCategory app:title="Theme">
 
         <SwitchPreferenceCompat
-            app:key="sync"
+            app:key="darkMode"
             app:title="@string/switch_to_dark_mode" />
 
         <SwitchPreferenceCompat
-            app:dependency="sync"
+            app:dependency="darkMode"
             app:key="attachment"
             app:summaryOff="@string/attachment_summary_off"
             app:summaryOn="@string/attachment_summary_on"

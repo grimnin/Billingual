@@ -6,10 +6,12 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreferenceCompat
 import com.example.myapplication.Login
 import com.example.myapplication.R
 import com.example.myapplication.fragments.MenuFragment
@@ -40,6 +42,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         // Zastosuj wybraną lokalizację
         setLocale(selectedLanguage)
+        setupDarkModeSwitch()
+        val darkModeEnabled = sharedPreferences.getBoolean("darkModeEnabled", false)
+        if (darkModeEnabled) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
 
         // Inicjalizacja GoogleSignInClient
         googleSignInClient = GoogleSignIn.getClient(requireContext(), GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -131,8 +140,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        if (isAdded) {
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        }
     }
+
 
     private fun updateLoginInFirestore(newLogin: String) {
         val currentUser = FirebaseAuth.getInstance().currentUser
@@ -175,11 +187,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun redirectToLogin() {
-        val intent = Intent(requireContext(), Login::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-        startActivity(intent)
-        requireActivity().finish()
+        if (isAdded) {
+            val intent = Intent(requireContext(), Login::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+            requireActivity().finish()
+        }
     }
+
 
     private fun loadLanguageFromSharedPreferences(): String {
         return sharedPreferences.getString("language", getString(R.string.default_language_code)) ?: getString(R.string.default_language_code)
@@ -187,10 +202,28 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private fun clearSharedPreferences() {
         val selectedLanguage = loadLanguageFromSharedPreferences()
+        val isDarkModeEnabled = sharedPreferences.getBoolean("darkModeEnabled", false)
         val editor = sharedPreferences.edit()
-        editor.clear().apply()
+
+        // Usuń wszystkie dane z wyjątkiem tych dotyczących motywu
+        editor.remove("language").apply()
+
+        // Przywróć preferencje dotyczące motywu
+        editor.putBoolean("darkModeEnabled", isDarkModeEnabled).apply()
+
         saveLanguageToSharedPreferences(selectedLanguage) // Zachowaj dane dotyczące lokalizacji
+
+        // Przypisz motyw przed ponownym tworzeniem aktywności
+        if (isDarkModeEnabled) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
+
+        requireActivity().recreate()
     }
+
+
 
     private fun checkIfLoginIsUnique(login: String, callback: (Boolean) -> Unit) {
         val db = FirebaseFirestore.getInstance()
@@ -207,5 +240,25 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 callback.invoke(false)
             }
     }
+    // W SettingsFragment
+    private fun setupDarkModeSwitch() {
+        val darkModeSwitch = findPreference<SwitchPreferenceCompat>("darkMode")
+
+        darkModeSwitch?.setOnPreferenceChangeListener { _, newValue ->
+            val isDarkModeEnabled = newValue as Boolean
+            sharedPreferences.edit().putBoolean("darkModeEnabled", isDarkModeEnabled).apply()
+
+            // Ustaw tryb motywu
+            if (isDarkModeEnabled) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+
+            true
+        }
+    }
+
+
 }
 

@@ -17,8 +17,11 @@ import com.example.myapplication.fragments.mistakes.MistakeFragment
 import com.example.myapplication.fragments.quiz.QuizFragment
 import com.example.myapplication.fragments.rank.Rank
 import com.example.myapplication.fragments.settings.SettingsFragment
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 
 class MenuFragment : Fragment() {
 
@@ -116,12 +119,35 @@ class MenuFragment : Fragment() {
                             selectedCategories.add(categories[i])
                         }
                     }
-                    saveSelectedCategories(selectedCategories)
-                    redirectToQuizFragment()
 
-                    // Wyświetl wybrane kategorie jako toast
-                    val selectedCategoriesMessage = "Selected categories:\n${selectedCategories.joinToString(", ")}"
-                    Toast.makeText(requireContext(), selectedCategoriesMessage, Toast.LENGTH_LONG).show()
+                    // Sprawdź łączną liczbę słów w wybranych kategoriach
+                    var totalWordsCount = 0
+                    val tasks = mutableListOf<Task<QuerySnapshot>>()
+                    for (category in selectedCategories) {
+                        val task = firestore.collection("words").document(category)
+                            .collection("words")
+                            .get()
+                            .addOnSuccessListener { documents ->
+                                totalWordsCount += documents.size()
+                            }
+                            .addOnFailureListener { exception ->
+                                // Obsłuż błąd pobierania dokumentów
+                                Toast.makeText(requireContext(), "Failed to fetch documents for category: $category, ${exception.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        tasks.add(task)
+                    }
+
+                    Tasks.whenAllComplete(tasks)
+                        .addOnSuccessListener {
+                            if (totalWordsCount > 4) {
+                                // Jeśli suma jest większa niż 4, przekieruj do fragmentu quizu
+                                saveSelectedCategories(selectedCategories)
+                                redirectToQuizFragment()
+                            } else {
+                                // Jeśli suma jest mniejsza lub równa 4, wyświetl komunikat
+                                Toast.makeText(requireContext(), "Selected categories contain less than 4 words for the quiz.", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                 }
 
                 builder.setNegativeButton("Cancel") { dialog, _ ->
@@ -135,9 +161,6 @@ class MenuFragment : Fragment() {
             }
     }
 
-
-
-
     private fun saveSelectedCategories(selectedCategories: List<String>) {
         // Odfiltruj kategorię "All"
         val filteredCategories = selectedCategories.filter { it != "All" }
@@ -145,7 +168,6 @@ class MenuFragment : Fragment() {
         editor.putStringSet("selectedCategories", filteredCategories.toSet())
         editor.apply()
     }
-
 
     private fun redirectToMistakeFragment() {
         val fragment = MistakeFragment()
@@ -211,4 +233,3 @@ class MenuFragment : Fragment() {
             .commit()
     }
 }
-

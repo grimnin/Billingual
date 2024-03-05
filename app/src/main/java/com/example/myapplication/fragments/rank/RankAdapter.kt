@@ -30,7 +30,7 @@ class RankAdapter(private val userList: List<User>) :
 
         // Change background color for the current user
         if (currentUser.uid == FirebaseAuth.getInstance().currentUser?.uid) {
-            holder.itemView.setBackgroundResource(R.color.teal_700) // Assuming you have a color resource named "teal_700"
+            holder.itemView.setBackgroundResource(R.color.user_position) // Assuming you have a color resource named "teal_700"
         } else {
             // Reset background color for other users
             holder.itemView.setBackgroundResource(android.R.color.transparent)
