@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.myapplication.AdminPanel
+import com.example.myapplication.GrammarPanelActivity
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentMenuBinding
 import com.example.myapplication.fragments.mistakes.MistakeFragment
@@ -46,6 +47,9 @@ class MenuFragment : Fragment() {
         binding.QuizImage.setOnClickListener {
             showCategorySelectionDialog()
         }
+        binding.GramaticImage.setOnClickListener {
+            redirectToGrammarPanel()
+        }
 
         binding.MistakesImage.setOnClickListener {
             redirectToMistakeFragment()
@@ -64,6 +68,11 @@ class MenuFragment : Fragment() {
         }
 
         hideAdminPanel()
+    }
+
+    private fun redirectToGrammarPanel() {
+        val intent = Intent(requireContext(), GrammarPanelActivity::class.java)
+        startActivity(intent)
     }
 
     private fun showCategorySelectionDialog() {

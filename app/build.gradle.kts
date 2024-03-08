@@ -87,6 +87,7 @@ dependencies {
     implementation(libs.androidx.viewpager2)
     implementation(libs.preference)
     implementation(libs.material)
+    implementation(platform(libs.compose.bom))
 
 
     testImplementation(libs.junit)
@@ -94,6 +95,7 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.ui.test.junit4)
+    androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(platform(libs.compose.bom))
     debugImplementation(libs.ui.tooling)

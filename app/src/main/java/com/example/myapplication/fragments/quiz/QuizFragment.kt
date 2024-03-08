@@ -268,7 +268,7 @@ class QuizFragment : Fragment() {
                                         if (madeMistake && currentCorrectCount >= currentMistakeCounter + 3) {
                                             madeMistake = false
                                         }
-updateScore(isCorrect)
+                                            updateScore(isCorrect)
                                         // Aktualizacja statystyk słowa
                                         transaction.update(wordRef, "total", currentTotal + 1)
                                         transaction.update(wordRef, "madeMistake", madeMistake)

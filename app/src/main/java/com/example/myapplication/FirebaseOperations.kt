@@ -76,51 +76,7 @@ class FirebaseOperations(private val context: Context) {
         }
     }
 
-    /*fun updateUsersScore(userId: String) {
-        val userDocRef = db.collection("users").document(userId)
 
-        // Collection reference for 'stats' subcollection
-        val statsCollectionRef = userDocRef.collection("stats")
-
-        // Document reference for 'word_stats' document in 'stats' subcollection
-        val wordStatsDocRef = statsCollectionRef.document("word_stats")
-
-        // Collection reference for 'categories' subcollection within 'word_stats'
-        val categoriesCollectionRef = wordStatsDocRef.collection("categories")
-
-        // Collection reference for 'animals' document in 'categories' subcollection
-        val animalsDocRef = categoriesCollectionRef.document("animals")
-
-        // Collection reference for 'words' subcollection within 'animals'
-        val wordsCollectionRef = animalsDocRef.collection("words")
-
-        // Zmienna do przechowywania sumy wartości pola 'total' we wszystkich dokumentach
-        var totalSum = 0L
-
-        // Pobierz wszystkie dokumenty z podkolekcji 'words' w dokumencie 'animals'
-        wordsCollectionRef.get().addOnSuccessListener { documents ->
-            for (document in documents) {
-                // Pobierz wartość pola 'total' z dokumentu
-                val totalValue = document.getLong("total") ?: 0
-
-                // Dodaj wartość do sumy
-                totalSum += totalValue
-            }
-
-            // Aktualizuj pole 'score' w kolekcji 'users' na zsumowaną wartość
-            userDocRef.update("score", totalSum)
-                .addOnSuccessListener {
-                    // Tutaj możesz dodać odpowiednią logikę lub powiadomienie
-                }
-                .addOnFailureListener { exception ->
-                    // Obsłuż błąd aktualizacji
-                    // W praktyce warto dodać odpowiednie logi lub obsługę błędów
-                }
-        }.addOnFailureListener { exception ->
-            // Obsłuż błąd pobierania dokumentów
-            // W praktyce warto dodać odpowiednie logi lub obsługę błędów
-        }
-    }*/
 
 }
 

@@ -31,38 +31,18 @@ class Login : ComponentActivity() {
     private lateinit var client: GoogleSignInClient
     private lateinit var textViewGoogleNick: EditText
     private lateinit var buttonNickG: Button
-    private lateinit var languageCode:String
+
     private lateinit var sharedPreferences: SharedPreferences
-    override fun onResume() {
-        super.onResume()
-        languageCode = loadLanguageFromSharedPreferences()
-showToast("resume - $languageCode")
-        // Zastosuj wybraną lokalizację
-        setLocale(languageCode)
 
-    }
-
-    override fun onPause() {
-        super.onPause()
-        languageCode = loadLanguageFromSharedPreferences()
-        showToast("pausen - $languageCode")
-        // Zastosuj wybraną lokalizację
-        setLocale(languageCode)
-
-    }
     override fun onRestart() {
+        setConnfiguration()
         super.onRestart()
-        languageCode = loadLanguageFromSharedPreferences()
-        showToast("restart- $languageCode")
-        // Zastosuj wybraną lokalizację
-        setLocale(languageCode)
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        languageCode = loadLanguageFromSharedPreferences()
-        showToast("create- $languageCode")
-        // Zastosuj wybraną lokalizację
-        setLocale(languageCode)
+
+        setConnfiguration()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login)
         // Odczytaj preferencje językowe
@@ -312,5 +292,17 @@ showToast("resume - $languageCode")
     private fun loadLanguageFromSharedPreferences(): String {
          sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         return sharedPreferences.getString("language", getString(R.string.default_language_code)) ?: getString(R.string.default_language_code)
+    }
+    private fun setConnfiguration(){
+        sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        setLocale(loadLanguageFromSharedPreferences())
+        val isDarkModeEnabled = sharedPreferences.getBoolean("darkModeEnabled", false)
+
+        // Ustaw odpowiedni styl w zależności od trybu ciemnego
+        if (isDarkModeEnabled) {
+            setTheme(R.style.AppTheme_Dark)
+        } else {
+            setTheme(R.style.AppTheme_Light)
+        }
     }
 }

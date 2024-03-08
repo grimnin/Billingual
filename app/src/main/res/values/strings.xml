@@ -48,4 +48,5 @@
     <string name="actions">Actions</string>
     <string name="log_out">Log out</string>
     <string name="default_language_code" translatable="false">pl</string>
+    <string name="title_activity_grammar_panel">GrammarPanel</string>
 </resources>

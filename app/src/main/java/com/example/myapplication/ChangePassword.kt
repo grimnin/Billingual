@@ -18,13 +18,11 @@ class ChangePassword : ComponentActivity() {
     private lateinit var mail: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setConnfiguration()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.change_password)
         // Odczytaj preferencje językowe
-        val languageCode = loadLanguageFromSharedPreferences()
 
-        // Zastosuj wybraną lokalizację
-        setLocale(languageCode)
 
         // Inicjalizacja
         val btnBack: Button = findViewById(R.id.buttonBackToLoginPage)
@@ -83,5 +81,17 @@ class ChangePassword : ComponentActivity() {
     private fun loadLanguageFromSharedPreferences(): String {
         val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         return sharedPreferences.getString("language", getString(R.string.default_language_code)) ?: getString(R.string.default_language_code)
+    }
+    private fun setConnfiguration(){
+        val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        setLocale(loadLanguageFromSharedPreferences())
+        val isDarkModeEnabled = sharedPreferences.getBoolean("darkModeEnabled", false)
+
+        // Ustaw odpowiedni styl w zależności od trybu ciemnego
+        if (isDarkModeEnabled) {
+            setTheme(R.style.AppTheme_Dark)
+        } else {
+            setTheme(R.style.AppTheme_Light)
+        }
     }
 }

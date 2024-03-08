@@ -17,14 +17,12 @@ class Register : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setConnfiguration()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.register)
         auth = FirebaseAuth.getInstance()
         // Odczytaj preferencje językowe
-        val languageCode = loadLanguageFromSharedPreferences()
 
-        // Zastosuj wybraną lokalizację
-        setLocale(languageCode)
 
         val switchToLogin: Button = findViewById(R.id.buttonSwitchToLoginR)
         switchToLogin.setOnClickListener {
@@ -168,5 +166,17 @@ class Register : ComponentActivity() {
     private fun loadLanguageFromSharedPreferences(): String {
         val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         return sharedPreferences.getString("language", getString(R.string.default_language_code)) ?: getString(R.string.default_language_code)
+    }
+    private fun setConnfiguration(){
+        val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        setLocale(loadLanguageFromSharedPreferences())
+        val isDarkModeEnabled = sharedPreferences.getBoolean("darkModeEnabled", false)
+
+        // Ustaw odpowiedni styl w zależności od trybu ciemnego
+        if (isDarkModeEnabled) {
+            setTheme(R.style.AppTheme_Dark)
+        } else {
+            setTheme(R.style.AppTheme_Light)
+        }
     }
 }
