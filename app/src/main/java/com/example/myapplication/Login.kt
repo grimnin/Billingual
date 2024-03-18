@@ -1,6 +1,6 @@
 package com.example.myapplication
 
-import FirebaseOperations
+
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -143,6 +143,8 @@ class Login : ComponentActivity() {
                     // Add this line to call addCategories after showing the UI
                     FirebaseOperations(this).addWordStatsSubcollection(auth.currentUser?.uid ?: "")
                     FirebaseOperations(this).copyWordsToCategories(auth.currentUser?.uid ?: "")
+                    FirebaseOperations(this).addGrammarStatsDocument(auth.currentUser?.uid ?: "")
+                    FirebaseOperations(this).copyGrammarCollection(auth.currentUser?.uid ?: "")
 
                     //FirebaseOperations(this).copyAnimalDocument(auth.currentUser?.uid ?: "")
                 } else {

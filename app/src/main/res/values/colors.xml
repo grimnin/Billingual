@@ -11,6 +11,7 @@
     <color name="transparent">#00FFFFFF</color>
     <color name="user_position">#0626D6</color>
     <color name="alert_dialog">#FF9800</color>
-
+    <color name="correctColor">#008000</color> <!-- Zielony -->
+    <color name="incorrectColor">#FF0000</color> <!-- Czerwony -->
 
 </resources>
