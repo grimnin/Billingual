@@ -9,7 +9,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import com.example.myapplication.fragments.MenuFragment
-import com.example.myapplication.fragments.mistakes.MistakeFragment
+import com.example.myapplication.fragments.mistakes.MistakeFragmentWords
 import com.example.myapplication.fragments.quiz.QuizFragment
 import com.example.myapplication.fragments.rank.Rank
 import com.example.myapplication.fragments.settings.SettingsFragment
@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity() {
         val currentFragment = fragmentManager.findFragmentById(R.id.fragmentContainerView2)
 
         when (currentFragment) {
-            is MistakeFragment,
+            is MistakeFragmentWords,
             is SettingsFragment,
             is Rank,
             is QuizFragment -> {

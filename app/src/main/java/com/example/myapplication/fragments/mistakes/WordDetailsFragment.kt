@@ -92,16 +92,12 @@ class WordDetailsFragment : Fragment() {
     private fun refreshPage(){
         val fragmentManager = requireActivity().supportFragmentManager
 
-        // Usuń fragment QuizFragment z kontenera
-        val quizFragment = fragmentManager.findFragmentById(R.id.fragmentContainerView2)
-        quizFragment?.let {
-            fragmentManager.beginTransaction().remove(it).commit()
-        }
+
 
         // Wyświetl MenuFragment w kontenerze
-        val mistakeFragment = MistakeFragment()
+        val mistakeFragmentWords = MistakeFragmentWords()
         fragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainerView2, mistakeFragment)
+            .replace(R.id.fragmentContainerViewMistake, mistakeFragmentWords)
             .commit()
     }
 

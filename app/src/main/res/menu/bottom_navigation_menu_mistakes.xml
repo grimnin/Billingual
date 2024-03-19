@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/Words"
+        android:title="Words" />
+    <item
+        android:id="@+id/Verbs"
+        android:title="Verbs" />
+    <item
+        android:id="@+id/Tenses"
+        android:title="Tenses" />
+</menu>

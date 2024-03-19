@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_irregular_verbs"
+        android:title="Irregular Verbs" />
+    <item
+        android:id="@+id/nav_past_tenses"
+        android:title="Past Tenses" />
+    <item
+        android:id="@+id/nav_exercises"
+        android:title="Exercises" />
+</menu>

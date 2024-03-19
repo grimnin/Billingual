@@ -88,6 +88,7 @@ dependencies {
     implementation(libs.preference)
     implementation(libs.material)
     implementation(platform(libs.compose.bom))
+    implementation(platform(libs.compose.bom))
 
 
     testImplementation(libs.junit)
@@ -95,6 +96,7 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.ui.test.junit4)
+    androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(platform(libs.compose.bom))

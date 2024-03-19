@@ -14,7 +14,7 @@ import com.example.myapplication.AdminPanel
 import com.example.myapplication.GrammarPanelActivity
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentMenuBinding
-import com.example.myapplication.fragments.mistakes.MistakeFragment
+import com.example.myapplication.fragments.mistakes.MistakeContainer
 import com.example.myapplication.fragments.quiz.QuizFragment
 import com.example.myapplication.fragments.rank.Rank
 import com.example.myapplication.fragments.settings.SettingsFragment
@@ -179,10 +179,8 @@ class MenuFragment : Fragment() {
     }
 
     private fun redirectToMistakeFragment() {
-        val fragment = MistakeFragment()
-        requireActivity().supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainerView2, fragment)
-            .commit()
+        val intent = Intent(requireContext(), MistakeContainer::class.java)
+        startActivity(intent)
     }
 
     private fun redirectToRankFragment() {

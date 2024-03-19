@@ -5,7 +5,7 @@
     android:id="@+id/frameLayout3"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.mistakes.MistakeFragment">
+    tools:context=".fragments.mistakes.MistakeFragmentWords">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -33,15 +33,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:layoutManager="androidx.viewpager2.widget.ViewPager2\$LinearLayoutManager" />
-
-            <Button
-                android:id="@+id/buttonBackToMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/rectangle"
-                android:text="@string/return_to_menu" />
 
         </LinearLayout>
     </ScrollView>

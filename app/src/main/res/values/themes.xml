@@ -10,10 +10,9 @@
     <style name="AppTheme.Light" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Definicje kolorów dla trybu jasnego -->
         <item name="android:textColor">@color/black</item>
-        <item name="android:background">@color/background</item>
+        <item name="android:background">@color/teal_200</item>
         <item name="android:textColorHint">@color/black</item>
         <item name="tabTextColor">@android:color/black</item>
-
 
 
         <!-- Inne właściwości stylu -->

@@ -1,71 +1,66 @@
-package com.example.myapplication
+package com.example.myapplication.fragments.mistakes
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
-import com.example.myapplication.fragments.grammar.Exercise1Fragment
-import com.example.myapplication.fragments.grammar.IrregularVerbsFragment
-import com.example.myapplication.fragments.grammar.PastTenses
+import androidx.fragment.app.commit
+import androidx.fragment.app.replace
+import com.example.myapplication.MainActivity
+import com.example.myapplication.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.Locale
 
-class GrammarPanelActivity : AppCompatActivity() {
-
-    private lateinit var viewPager: ViewPager2
+class MistakeContainer : AppCompatActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setConnfiguration()
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.grammar_panel)
+        setContentView(R.layout.mistake_container)
 
-        viewPager = findViewById(R.id.viewPager)
-        bottomNavigationView = findViewById(R.id.bottomNavigationView)
-
-        val adapter = GrammarPagerAdapter(this)
-        viewPager.adapter = adapter
-
+        // Inicjalizacja BottomNavigationView
+        bottomNavigationView = findViewById(R.id.bottom_navigation_view_mistake)
         bottomNavigationView.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.nav_irregular_verbs -> viewPager.currentItem = 0
-                R.id.nav_past_tenses -> viewPager.currentItem = 1
-                R.id.nav_exercises -> viewPager.currentItem = 2
+                R.id.Words -> showMistakeFragmentWords()
+                R.id.Verbs -> showMistakeFragmentVerbs()
             }
             true
         }
 
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                bottomNavigationView.menu.getItem(position).isChecked = true
-            }
-        })
+        // Wyświetlenie domyślnego fragmentu (np. MistakeFragmentWords)
+        showMistakeFragmentWords()
     }
 
-    private inner class GrammarPagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
-        override fun getItemCount(): Int {
-            return NUM_PAGES
-        }
-
-        override fun createFragment(position: Int): Fragment {
-            return when (position) {
-                0 -> IrregularVerbsFragment()
-                1 -> Exercise1Fragment()
-                2 -> PastTenses()
-                else -> Fragment()
-            }
+    private fun showMistakeFragmentWords() {
+        supportFragmentManager.commit {
+            replace<MistakeFragmentWords>(R.id.fragmentContainerViewMistake)
+             // Opcjonalnie, jeśli chcesz dodać do cofania transakcji
         }
     }
 
-    companion object {
-        private const val NUM_PAGES = 3 // Ilość fragmentów
+    private fun showMistakeFragmentVerbs() {
+        supportFragmentManager.commit {
+            replace<MistakeFragmentVerbs>(R.id.fragmentContainerViewMistake)
+             // Opcjonalnie, jeśli chcesz dodać do cofania transakcji
+        }
+    }
+
+    override fun onBackPressed() {
+        // Sprawdź, czy istnieją jakiekolwiek fragmenty na stosie cofania
+        if (supportFragmentManager.backStackEntryCount >= 0) {
+            // Jeśli stos cofania nie jest pusty, wykonaj standardowe zachowanie przycisku cofania
+            super.onBackPressed()
+        } else {
+            // Jeśli stos cofania jest pusty, przenieś użytkownika do MainActivity
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
     }
 
     private fun setLocale(languageCode: String) {
@@ -80,6 +75,7 @@ class GrammarPanelActivity : AppCompatActivity() {
         sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         return sharedPreferences.getString("language", getString(R.string.default_language_code)) ?: getString(R.string.default_language_code)
     }
+
     private fun setConnfiguration(){
         sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         setLocale(loadLanguageFromSharedPreferences())
@@ -92,5 +88,4 @@ class GrammarPanelActivity : AppCompatActivity() {
             setTheme(R.style.AppTheme_Light)
         }
     }
-
 }

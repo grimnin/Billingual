@@ -31,10 +31,7 @@ class IrregularVerbsFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         loadIrregularVerbsFromJson()
-        btnExercise1=view.findViewById(R.id.button2)
-        btnExercise1.setOnClickListener {
 
-        }
 
         return view
     }

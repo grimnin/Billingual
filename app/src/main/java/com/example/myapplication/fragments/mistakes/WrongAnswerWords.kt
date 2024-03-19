@@ -1,6 +1,6 @@
 package com.example.myapplication.fragments.mistakes
 
-data class WrongAnswer(
+data class WrongAnswerWords(
     val pl: String = "",
     val eng: String = "",
     val correctCount: Int = 0,
