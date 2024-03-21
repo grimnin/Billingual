@@ -5,5 +5,9 @@ data class IrregularVerb(
     val pastSimple: String,
     val pastParticiple: String,
     val meaning: String,
-    val id:String
+    val id:String,
+    val correctAnswers:Int,
+    val wrongAnswers:Int,
+    val madeMistake:Boolean
+
 )

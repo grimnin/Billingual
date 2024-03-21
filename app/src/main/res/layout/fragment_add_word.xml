@@ -66,4 +66,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Add word" />
+
+    <Spinner
+        android:id="@+id/spinnerSelectCategoryToDelete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <Spinner
+        android:id="@+id/spinnerSelectWordToDelete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/buttonDeleteWord"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="delete word"
+        android:visibility="gone" />
 </LinearLayout>

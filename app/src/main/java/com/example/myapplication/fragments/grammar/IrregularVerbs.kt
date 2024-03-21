@@ -61,7 +61,7 @@ class IrregularVerbsFragment : Fragment() {
                 val pastParticiple = verbObject.getString("Past-Participle")
                 val meaning = verbObject.getString("PL")
 
-                val irregularVerb = IrregularVerb(base, pastSimple, pastParticiple, meaning,"")
+                val irregularVerb = IrregularVerb(base, pastSimple, pastParticiple, meaning,"",0,0,false)
                 irregularVerbs.add(irregularVerb)
             }
 

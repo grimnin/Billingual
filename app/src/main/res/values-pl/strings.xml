@@ -29,4 +29,5 @@
     <string name="actions">Akcje</string>
     <string name="log_out">Wyloguj</string>
     <string name="reply_title">Zmiana języka</string>
+    <string name="delete_from_mistakes">Usuń z błędów</string>
 </resources>

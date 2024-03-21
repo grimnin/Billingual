@@ -48,6 +48,7 @@
     <string name="actions">Actions</string>
     <string name="log_out">Log out</string>
     <string name="default_language_code" translatable="false">pl</string>
-    <string name="title_activity_grammar_panel">GrammarPanel</string>
-    <string name="title_activity_mistake_container">MistakeContainer</string>
+    <string name="title_activity_grammar_panel" translatable="false">GrammarPanel</string>
+    <string name="title_activity_mistake_container" translatable="false">MistakeContainer</string>
+    <string name="delete_from_mistakes">Delete from mistakes</string>
 </resources>

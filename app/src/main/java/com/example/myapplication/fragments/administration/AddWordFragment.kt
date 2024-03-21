@@ -20,6 +20,8 @@ import org.json.JSONObject
 class AddWordFragment : Fragment() {
 
     private lateinit var spinnerCategory: Spinner
+    private lateinit var spinnerCategoryDelete: Spinner
+    private lateinit var spinnerWord: Spinner
     private lateinit var editTextNewCategory: EditText
     private lateinit var editTextWrongAnswer1: EditText
     private lateinit var editTextWrongAnswer2: EditText
@@ -27,6 +29,7 @@ class AddWordFragment : Fragment() {
     private lateinit var editTextCorrectAnswer: EditText
     private lateinit var editTextPl: EditText
     private lateinit var buttonAddWord: Button
+    private lateinit var buttonDeleteWord: Button
     private val storageRef = FirebaseStorage.getInstance().reference
     private val jsonFilePath = "betterAnswers.json"
 
@@ -40,6 +43,8 @@ class AddWordFragment : Fragment() {
 
         // Initialize views
         spinnerCategory = view.findViewById(R.id.spinnerCategory)
+        spinnerCategoryDelete = view.findViewById(R.id.spinnerSelectCategoryToDelete)
+        spinnerWord = view.findViewById(R.id.spinnerSelectWordToDelete)
         editTextNewCategory = view.findViewById(R.id.editTextNewCategory)
         editTextWrongAnswer1 = view.findViewById(R.id.editTextWrongAnswer1)
         editTextWrongAnswer2 = view.findViewById(R.id.editTextWrongAnswer2)
@@ -47,8 +52,10 @@ class AddWordFragment : Fragment() {
         editTextCorrectAnswer = view.findViewById(R.id.editTextCorrectAnswer)
         editTextPl = view.findViewById(R.id.editTextPl)
         buttonAddWord = view.findViewById(R.id.buttonAddWord)
+        buttonDeleteWord = view.findViewById(R.id.buttonDeleteWord)
 
         setupSpinner()
+        setupSpinnerChooseCategoryToDelete()
         setupButton()
 
         return view
@@ -68,6 +75,7 @@ class AddWordFragment : Fragment() {
 
                 // Add "Add new category" option
                 categories.add("Add new category")
+                categories.add("Delete word")
 
                 // Set adapter for Spinner
                 val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)
@@ -85,12 +93,75 @@ class AddWordFragment : Fragment() {
                 if (selectedItem == "Add new category") {
                     // Show EditText field for new category
                     editTextNewCategory.visibility = View.VISIBLE
-                } else {
+                    editTextCorrectAnswer.visibility = View.VISIBLE
+                    editTextWrongAnswer1.visibility = View.VISIBLE
+                    editTextWrongAnswer2.visibility = View.VISIBLE
+                    editTextWrongAnswer3.visibility = View.VISIBLE
+                    editTextPl.visibility = View.VISIBLE
+                    buttonAddWord.visibility=View.VISIBLE
+                    spinnerWord.visibility= View.GONE
+                    buttonDeleteWord.visibility=View.GONE
+                    spinnerCategoryDelete.visibility=View.GONE
+                }
+                 else if(selectedItem == "Delete word"){
+                    editTextNewCategory.visibility = View.GONE
+                    editTextCorrectAnswer.visibility = View.GONE
+                    editTextWrongAnswer1.visibility = View.GONE
+                    editTextWrongAnswer2.visibility = View.GONE
+                    editTextWrongAnswer3.visibility = View.GONE
+                    editTextPl.visibility = View.GONE
+                    spinnerCategoryDelete.visibility= View.VISIBLE
+
+                    spinnerWord.visibility= View.VISIBLE
+                    buttonDeleteWord.visibility=View.VISIBLE
+                    buttonAddWord.visibility=View.GONE
+                }
+                else {
                     // Hide EditText field for new category
                     editTextNewCategory.visibility = View.GONE
+                    editTextCorrectAnswer.visibility = View.VISIBLE
+                    editTextWrongAnswer1.visibility = View.VISIBLE
+                    editTextWrongAnswer2.visibility = View.VISIBLE
+                    editTextWrongAnswer3.visibility = View.VISIBLE
+                    editTextPl.visibility = View.VISIBLE
+                    spinnerCategoryDelete.visibility= View.GONE
+                    spinnerWord.visibility= View.GONE
+                    buttonDeleteWord.visibility=View.GONE
+                    buttonAddWord.visibility=View.VISIBLE
                 }
             }
 
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing when no item is selected
+            }
+        }
+    }
+    private fun setupSpinnerChooseCategoryToDelete(){
+        // Get categories list from Firestore database
+        val categories = mutableListOf<String>()
+
+        firestore.collection("words")
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    val categoryName = document.getString("name")
+                    categoryName?.let { categories.add(it) }
+                }
+
+
+
+                // Set adapter for Spinner
+                val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                spinnerCategoryDelete.adapter = adapter
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(requireContext(), "Error fetching categories: ${exception.message}", Toast.LENGTH_SHORT).show()
+            }
+        spinnerCategoryDelete.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long){
+
+            }
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // Do nothing when no item is selected
             }

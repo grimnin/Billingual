@@ -142,7 +142,7 @@ class FirebaseOperations(private val context: Context) {
                 val pastPerfect = document.getString("PastPerfect") ?: ""
                 val pl = document.getString("pl") ?: ""
                 val id = document.getString("id") ?: ""
-                val verb = IrregularVerb(base, pastSimple, pastPerfect, pl,id)
+                val verb = IrregularVerb(base, pastSimple, pastPerfect, pl,id,0,0,false)
                 verbsList.add(verb)
             }
             val randomVerbs = verbsList.shuffled().take(5)
@@ -225,6 +225,24 @@ class FirebaseOperations(private val context: Context) {
         }
     }
 
+    fun updateVerbMistakeStatus(verbId: String, newValue: Boolean) {
+        val user = auth.currentUser
+        user?.let { currentUser ->
+            val userId = currentUser.uid
+            val verbDocRef = db.collection("users").document(userId)
+                .collection("stats").document("grammar_stats")
+                .collection("grammar").document("irregular_verbs")
+                .collection("verbs").document(verbId)
+
+            verbDocRef.update("stats.madeMistake", newValue)
+                .addOnSuccessListener {
+                    Log.d("FirebaseOperations", "Verb mistake status updated successfully.")
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("FirebaseOperations", "Error updating verb mistake status", exception)
+                }
+        }
+    }
 
 
 
