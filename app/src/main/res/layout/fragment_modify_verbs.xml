@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".fragments.administration.ModifyVerbsFragment">
+
+
+    <Spinner
+        android:id="@+id/spinnerDeleteVerbs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+         />
+
+    <EditText
+        android:id="@+id/editTextTextPL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/spinnerDeleteVerbs"
+        android:ems="10"
+        android:hint="PL"
+        android:inputType="text" />
+
+    <EditText
+        android:id="@+id/editTextTextBasic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editTextTextPL"
+        android:ems="10"
+        android:hint="Basic"
+        android:inputType="text" />
+
+    <EditText
+        android:id="@+id/editTextTextSimple"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editTextTextBasic"
+        android:ems="10"
+        android:hint="Past Simple"
+        android:inputType="text" />
+
+    <EditText
+        android:id="@+id/editTextTextPerfect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editTextTextSimple"
+        android:ems="10"
+        android:hint="Past Perfect"
+        android:inputType="text" />
+
+    <Button
+        android:id="@+id/buttonAddVerb"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editTextTextPerfect"
+        android:text="Add verb" />
+
+    <Button
+        android:id="@+id/buttonDeleteVerb"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/buttonAddVerb"
+        android:text="Delete Verb" />
+</RelativeLayout>

@@ -11,6 +11,7 @@ import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.example.myapplication.FirebaseOperations
 import com.example.myapplication.R
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -32,8 +33,16 @@ class AddWordFragment : Fragment() {
     private lateinit var buttonDeleteWord: Button
     private val storageRef = FirebaseStorage.getInstance().reference
     private val jsonFilePath = "betterAnswers.json"
+    private lateinit var firebaseOperations: FirebaseOperations
+    private var selectedWord=""
+
+
 
     private val firestore: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        firebaseOperations = FirebaseOperations(requireContext())
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -64,6 +73,8 @@ class AddWordFragment : Fragment() {
     private fun setupSpinner() {
         // Get categories list from Firestore database
         val categories = mutableListOf<String>()
+        val selectedCategory = categories.takeIf { it.isEmpty() } ?: "animals" // Jeśli selectedCategory jest puste, ustawia "animals"
+
 
         firestore.collection("words")
             .get()
@@ -115,6 +126,8 @@ class AddWordFragment : Fragment() {
                     spinnerWord.visibility= View.VISIBLE
                     buttonDeleteWord.visibility=View.VISIBLE
                     buttonAddWord.visibility=View.GONE
+                    //if(!spinnerCategoryDelete.selectedItem.toString().isNullOrBlank()){fetchWordsForCategory(spinnerCategoryDelete.selectedItem.toString())}
+
                 }
                 else {
                     // Hide EditText field for new category
@@ -136,7 +149,7 @@ class AddWordFragment : Fragment() {
             }
         }
     }
-    private fun setupSpinnerChooseCategoryToDelete(){
+    private fun setupSpinnerChooseCategoryToDelete() {
         // Get categories list from Firestore database
         val categories = mutableListOf<String>()
 
@@ -148,8 +161,6 @@ class AddWordFragment : Fragment() {
                     categoryName?.let { categories.add(it) }
                 }
 
-
-
                 // Set adapter for Spinner
                 val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -158,21 +169,43 @@ class AddWordFragment : Fragment() {
             .addOnFailureListener { exception ->
                 Toast.makeText(requireContext(), "Error fetching categories: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
-        spinnerCategoryDelete.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long){
 
+        spinnerCategoryDelete.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedCategory = parent?.getItemAtPosition(position).toString()
+                if (selectedCategory.isNotBlank()) {
+                    fetchWordsForCategory(selectedCategory)
+                }
             }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // Do nothing when no item is selected
             }
         }
     }
 
+
     private fun setupButton() {
         buttonAddWord.setOnClickListener {
             addWordToFirestore()
         }
+
+        buttonDeleteWord.setOnClickListener {
+            val selectedCategory = spinnerCategoryDelete.selectedItem.toString()
+             selectedWord = spinnerWord?.selectedItem.toString()
+
+            // Sprawdź, czy wybrano kategorię i słowo
+            if (!selectedCategory.isNullOrBlank() && spinnerWord.isSelected) {
+                // Usuń dokument dotyczący słowa dla każdego użytkownika
+                firebaseOperations.deleteWordForAllUsers(selectedCategory, "word"+(spinnerWord.selectedItemPosition+1))
+            } else {
+                // Komunikat o błędzie, jeśli kategoria lub słowo nie zostały wybrane
+                Toast.makeText(requireContext(), "Please select a category and a word to delete", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
+
+
 
     private fun addWordToFirestore() {
         val category = if (spinnerCategory.selectedItem.toString() == "Add new category") {
@@ -429,6 +462,26 @@ class AddWordFragment : Fragment() {
             .addOnFailureListener { e ->
                 // Handle error fetching documents from "users" collection
                 Toast.makeText(requireContext(), "Error fetching user documents: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+    private fun fetchWordsForCategory(category: String) {
+        val words = mutableListOf<String>()
+
+        firestore.collection("words").document(category).collection("words")
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    val word = document.getString("eng")
+                    word?.let { words.add(it) }
+                }
+
+                // Set adapter for SpinnerWord
+                val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, words)
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                spinnerWord.adapter = adapter
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(requireContext(), "Error fetching words: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
     }
 }

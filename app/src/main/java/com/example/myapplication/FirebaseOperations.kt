@@ -49,7 +49,7 @@ class FirebaseOperations(private val context: Context) {
 
                 categoryDocRef.set(data).addOnSuccessListener {
                     // Copy subcollections
-                    copySubcollections(document.reference, categoryDocRef,"words")
+                    copySubcollections(document.reference, categoryDocRef, "words")
                 }.addOnFailureListener { exception ->
                     // Handle failure
                 }
@@ -59,7 +59,11 @@ class FirebaseOperations(private val context: Context) {
         }
     }
 
-    private fun copySubcollections(sourceDocRef: DocumentReference, targetDocRef: DocumentReference,collectionPath:String) {
+    private fun copySubcollections(
+        sourceDocRef: DocumentReference,
+        targetDocRef: DocumentReference,
+        collectionPath: String
+    ) {
         sourceDocRef.collection(collectionPath).get().addOnSuccessListener { subcollection ->
             for (subDoc in subcollection) {
                 // Get the data from subcollection
@@ -78,6 +82,7 @@ class FirebaseOperations(private val context: Context) {
             // Handle failure in getting subcollection
         }
     }
+
     fun addGrammarStatsDocument(userId: String) {
         // Collection reference for 'users' collection
         val userDocRef = db.collection("users").document(userId)
@@ -115,7 +120,11 @@ class FirebaseOperations(private val context: Context) {
                     .addOnSuccessListener {
                         // Handle successful copying of document
                         // If there are subcollections, you can call a function to copy them
-                        copySubcollections(document.reference, grammarStatsDocRef.collection("grammar").document(document.id),"verbs")
+                        copySubcollections(
+                            document.reference,
+                            grammarStatsDocRef.collection("grammar").document(document.id),
+                            "verbs"
+                        )
                     }
                     .addOnFailureListener { exception ->
                         // Handle failure
@@ -142,7 +151,7 @@ class FirebaseOperations(private val context: Context) {
                 val pastPerfect = document.getString("PastPerfect") ?: ""
                 val pl = document.getString("pl") ?: ""
                 val id = document.getString("id") ?: ""
-                val verb = IrregularVerb(base, pastSimple, pastPerfect, pl,id,0,0,false)
+                val verb = IrregularVerb(base, pastSimple, pastPerfect, pl, id, 0, 0, false)
                 verbsList.add(verb)
             }
             val randomVerbs = verbsList.shuffled().take(5)
@@ -202,7 +211,8 @@ class FirebaseOperations(private val context: Context) {
             updatedStatsMap?.let {
                 val currentCorrectAnswers = it["correctAnswers"] as? Long ?: 0
                 val currentWrongAnswers = it["wrongAnswers"] as? Long ?: 0
-                val updatedMadeMistake = if (currentCorrectAnswers >= currentWrongAnswers + 1 && it["madeMistake"] == true) false else !isCorrect || (it["madeMistake"] as? Boolean) ?: false
+                val updatedMadeMistake =
+                    if (currentCorrectAnswers >= currentWrongAnswers + 1 && it["madeMistake"] == true) false else !isCorrect || (it["madeMistake"] as? Boolean) ?: false
 
                 // Update correctAnswers or wrongAnswers based on the answer correctness
                 if (isCorrect) {
@@ -225,6 +235,7 @@ class FirebaseOperations(private val context: Context) {
         }
     }
 
+
     fun updateVerbMistakeStatus(verbId: String, newValue: Boolean) {
         val user = auth.currentUser
         user?.let { currentUser ->
@@ -242,7 +253,51 @@ class FirebaseOperations(private val context: Context) {
                     Log.e("FirebaseOperations", "Error updating verb mistake status", exception)
                 }
         }
+
+
     }
+
+    fun deleteWordForAllUsers(category: String, wordId: String) {
+        // Get reference to the word document to be deleted
+        val wordDocRef = db.collection("words").document(category)
+            .collection("words").document(wordId)
+
+        // Get all users
+        db.collection("users").get()
+            .addOnSuccessListener { users ->
+                for (user in users) {
+                    val userId = user.id
+                    // Get reference to the user's document
+                    val userDocRef = db.collection("users").document(userId)
+                        .collection("stats").document("word_stats")
+                        .collection("categories").document(category)
+                        .collection("words").document(wordId)
+
+
+                    // Delete the word document for the user
+                    userDocRef.delete()
+                        .addOnSuccessListener {
+                            Log.d("FirebaseOperations", "Word deleted for user: $userId and wordID is $wordId")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("FirebaseOperations", "Error deleting word for user: $userId", e)
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirebaseOperations", "Error getting users for word deletion", e)
+            }
+
+        // Delete the word document from the main 'words' collection
+        wordDocRef.delete()
+            .addOnSuccessListener {
+                Log.d("FirebaseOperations", "Word deleted from main collection")
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirebaseOperations", "Error deleting word from main collection", e)
+            }
+    }
+
 
 
 
