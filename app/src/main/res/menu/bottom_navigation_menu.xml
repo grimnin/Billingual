@@ -4,11 +4,14 @@
         android:title="Users" />
     <item
         android:id="@+id/navigation_add_word"
-        android:title="Add/Remove Word" />
+        android:title="+/- Word" />
 
     <item
         android:id="@+id/navigation_add_verb"
-        android:title="Add/Remove Verb" />
+        android:title="+/- Verb" />
+    <item
+        android:id="@+id/navigation_add_tense"
+        android:title="+/- Tense" />
 
 
 </menu>

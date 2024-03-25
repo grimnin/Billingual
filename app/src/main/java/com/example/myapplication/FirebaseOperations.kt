@@ -2,6 +2,7 @@ package com.example.myapplication
 import android.content.Context
 import android.util.Log
 import com.example.myapplication.fragments.grammar.IrregularVerb
+import com.example.myapplication.fragments.grammar.Sentence
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -9,6 +10,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class FirebaseOperations(private val context: Context) {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
+    private   val user = auth.currentUser
     fun addWordStatsSubcollection(userId: String) {
         // Collection reference for 'users' collection
         val userDocRef = db.collection("users").document(userId)
@@ -237,7 +239,7 @@ class FirebaseOperations(private val context: Context) {
 
 
     fun updateVerbMistakeStatus(verbId: String, newValue: Boolean) {
-        val user = auth.currentUser
+
         user?.let { currentUser ->
             val userId = currentUser.uid
             val verbDocRef = db.collection("users").document(userId)
@@ -296,6 +298,184 @@ class FirebaseOperations(private val context: Context) {
             .addOnFailureListener { e ->
                 Log.e("FirebaseOperations", "Error deleting word from main collection", e)
             }
+    }
+
+
+    fun deleteVerbForAllUsers(verbToDelete: String) {
+        // Collection reference for 'users' collection
+        val usersCollectionRef = db.collection("users")
+
+        // Get all users
+        usersCollectionRef.get()
+            .addOnSuccessListener { users ->
+                for (user in users) {
+                    val userId = user.id
+
+                    // Document reference for the verb to delete for the current user
+                    val verbDocRef = db.collection("users").document(userId)
+                        .collection("stats").document("grammar_stats")
+                        .collection("grammar").document("irregular_verbs")
+                        .collection("verbs").whereEqualTo("pl", verbToDelete)
+
+
+
+                    // Delete the verb document for the user
+                    verbDocRef.get()
+                        .addOnSuccessListener { documents ->
+                            for (document in documents) {
+                                document.reference.delete()
+                                    .addOnSuccessListener {
+                                        Log.d("FirebaseOperations", "Verb deleted successfully for user: $userId")
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.e("FirebaseOperations", "Error deleting verb for user: $userId", e)
+                                    }
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("FirebaseOperations", "Error getting verb document for user: $userId", e)
+                        }
+
+                }
+                val verbDocRef2=db.collection("grammar").document("irregular_verbs").collection("verbs").whereEqualTo("pl", verbToDelete)
+                verbDocRef2.get()
+                    .addOnSuccessListener { documents ->
+                        for (document in documents) {
+                            document.reference.delete()
+                                .addOnSuccessListener {
+
+                                }
+                                .addOnFailureListener { e ->
+
+                                }
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("FirebaseOperations", "Error getting verb document", e)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirebaseOperations", "Error getting users for deleting verbs", e)
+            }
+    }
+
+    fun copyGrammarSentences(userId: String) {
+        // Collection reference for 'users' collection
+        val userDocRef = db.collection("users").document(userId)
+
+        // Collection reference for 'stats' subcollection
+        val statsCollectionRef = userDocRef.collection("stats")
+
+        // Document reference for 'grammar_stats' document in 'stats' subcollection
+        val grammarStatsDocRef = statsCollectionRef.document("grammar_stats")
+
+        // Collection reference for 'grammar' collection within 'grammar_stats'
+        val grammarCollectionRef = grammarStatsDocRef.collection("grammar")
+
+        // Collection reference for 'tenses' subcollection within 'grammar'
+        val tensesCollectionRef = grammarCollectionRef.document("tenses")
+            .collection("sentences")
+
+        // Collection reference for '/grammar/tenses/sentences' subcollection
+        val sourceSentencesCollectionRef = db.collection("grammar").document("tenses")
+            .collection("sentences")
+
+        // Get all documents from '/grammar/tenses/sentences' collection
+        sourceSentencesCollectionRef.get().addOnSuccessListener { documents ->
+            for (document in documents) {
+                // Get the data from each document
+                val data = document.data
+
+                // Set the data in 'sentences' collection within 'grammar' document
+                val sentenceDocRef = tensesCollectionRef.document(document.id)
+                sentenceDocRef.set(data)
+                    .addOnSuccessListener {
+                        // Handle successful copying of sentence
+                    }
+                    .addOnFailureListener { exception ->
+                        // Handle failure in copying sentence
+                    }
+            }
+        }.addOnFailureListener { exception ->
+            // Handle failure in getting sentences
+        }
+    }
+
+    fun getRandomSentences(callback: (List<Sentence>) -> Unit) {
+        val user = auth.currentUser
+        if (user != null) {
+            val userId = user.uid
+            val userDocRef = db.collection("users").document(userId)
+            val grammarStatsDocRef = userDocRef.collection("stats")
+                .document("grammar_stats")
+                .collection("grammar")
+                .document("tenses")
+                .collection("sentences") // Access the "sentences" subcollection
+
+            grammarStatsDocRef.get().addOnSuccessListener { documents ->
+                val sentences = mutableListOf<Sentence>()
+                val randomDocuments = documents.shuffled().take(3) // Get three random documents
+                for (document in randomDocuments) {
+                    val data = document.data
+                    val sentence = data["sentence"] as? String ?: ""
+                    val zdanie = data["zdanie"] as? String ?: ""
+                    val tense = data["tense"] as? String ?: ""
+                    val id = document.id
+                    val correctAnswers = (data["correctAnswers"] as? Long)?.toInt() ?: 0
+                    val wrongAnswers = (data["wrongAnswers"] as? Long)?.toInt() ?: 0
+                    val madeMistake = data["madeMistake"] as? Boolean ?: false
+
+                    val sentenceObject = Sentence(sentence, zdanie, tense, id, correctAnswers, wrongAnswers, madeMistake)
+                    sentences.add(sentenceObject)
+                }
+                callback(sentences)
+            }.addOnFailureListener { exception ->
+                // Handle failure
+                callback(emptyList())
+            }
+        } else {
+            // User is not logged in
+            callback(emptyList())
+        }
+
+
+    }
+
+    fun updateSentenceStats(sentences: List<Sentence>, answers: List<String>) {
+        val userDocRef = db.collection("users").document(user?.uid.toString())
+        val grammarStatsDocRef = userDocRef.collection("stats")
+            .document("grammar_stats")
+            .collection("grammar")
+            .document("tenses")
+            .collection("sentences")
+
+        for ((index, sentence) in sentences.withIndex()) {
+            val answer = answers[index]
+            val isCorrect = answer.equals(sentence.sentence, ignoreCase = true)
+
+            db.runTransaction { transaction ->
+                val sentenceDocRef = grammarStatsDocRef.document(sentence.id)
+
+                // Update correctAnswers field
+                if (isCorrect) {
+                    val currentCorrectAnswers = sentence.correctAnswers
+                    transaction.update(sentenceDocRef, "correctAnswers", currentCorrectAnswers + 1)
+                }
+
+                // Update wrongAnswers field and madeMistake field
+                val currentWrongAnswers = sentence.wrongAnswers
+                val updatedWrongAnswers = currentWrongAnswers + if (!isCorrect) 1 else 0
+                val updatedMadeMistake = !isCorrect || sentence.madeMistake
+                transaction.update(sentenceDocRef, "wrongAnswers", updatedWrongAnswers)
+                transaction.update(sentenceDocRef, "madeMistake", updatedMadeMistake)
+
+                null
+            }.addOnSuccessListener {
+                Log.d("FirebaseOperations", "Sentence stats updated successfully.")
+            }.addOnFailureListener { e ->
+                Log.e("FirebaseOperations", "Error updating sentence stats", e)
+            }
+        }
     }
 
 

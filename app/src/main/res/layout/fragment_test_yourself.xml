@@ -1,14 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.grammar.TestYourself">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
 
-</FrameLayout>
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragmentContainerViewExercises"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <Button
+        android:id="@+id/buttonExercise1"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="250dp"
+        android:background="@drawable/rectangle"
+        android:text="Start exercise 1" />
+
+    <Button
+        android:id="@+id/buttonExercise2"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_below="@id/buttonExercise1"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/rectangle"
+        android:text="Start Exercise 2" />
+</RelativeLayout>

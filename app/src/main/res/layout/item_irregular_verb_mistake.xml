@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#F44336"
+        android:gravity="center"
         android:textAppearance="?android:textAppearanceMedium"
         android:textStyle="bold" />
 
@@ -19,37 +20,43 @@
         android:id="@+id/pastSimpleTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#4CAF50" />
+        android:background="#F44336"
+        android:gravity="center" />
 
     <TextView
         android:id="@+id/pastParticipleTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#2196F3" />
+        android:background="#F44336"
+        android:gravity="center" />
 
     <TextView
         android:id="@+id/meaningTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFC107" />
+        android:background="#F44336"
+        android:gravity="center" />
 
     <TextView
         android:id="@+id/correctAnswersTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#673AB7" />
+        android:background="#F44336"
+        android:gravity="center" />
 
     <TextView
         android:id="@+id/wrongAnswersTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFEB3B" />
+        android:background="#F44336"
+        android:gravity="center" />
 
     <TextView
         android:id="@+id/madeMistakeTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#009688" />
+        android:background="#F44336"
+        android:gravity="center" />
 
     <LinearLayout
         android:layout_width="match_parent"

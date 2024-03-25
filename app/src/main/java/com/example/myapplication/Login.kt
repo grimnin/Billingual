@@ -145,6 +145,7 @@ class Login : ComponentActivity() {
                     FirebaseOperations(this).copyWordsToCategories(auth.currentUser?.uid ?: "")
                     FirebaseOperations(this).addGrammarStatsDocument(auth.currentUser?.uid ?: "")
                     FirebaseOperations(this).copyGrammarCollection(auth.currentUser?.uid ?: "")
+                    FirebaseOperations(this).copyGrammarSentences(auth.currentUser?.uid ?: "")
 
                     //FirebaseOperations(this).copyAnimalDocument(auth.currentUser?.uid ?: "")
                 } else {

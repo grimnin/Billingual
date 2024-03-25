@@ -9,9 +9,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.example.myapplication.fragments.grammar.Exercise1Fragment
 import com.example.myapplication.fragments.grammar.IrregularVerbsFragment
 import com.example.myapplication.fragments.grammar.PastTenses
+import com.example.myapplication.fragments.grammar.TestYourself
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.Locale
 
@@ -57,8 +57,8 @@ class GrammarPanelActivity : AppCompatActivity() {
         override fun createFragment(position: Int): Fragment {
             return when (position) {
                 0 -> IrregularVerbsFragment()
-                1 -> Exercise1Fragment()
-                2 -> PastTenses()
+                1 -> PastTenses()
+                2 -> TestYourself()
                 else -> Fragment()
             }
         }

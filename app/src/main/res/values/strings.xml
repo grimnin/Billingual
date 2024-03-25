@@ -3,17 +3,16 @@
     <string name="title_activity_login" translatable="false">Login</string>
     <string name="title_activity_register" translatable="false">Register</string>
     <string name="default_web_client_id" translatable="false">566054808175-3a7mvq6q5k1jm02ap31i1bmcslf8kh9r.apps.googleusercontent.com</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
-    <!-- Preference Titles -->
+
     <string name="messages_header" translatable="false">Messages</string>
     <string name="sync_header" translatable="false">Sync</string>
 
-    <!-- Messages Preferences -->
+
     <string name="signature_title" translatable="false">Your signature</string>
     <string name="reply_title">Change app language</string>
 
-    <!-- Sync Preferences -->
+
     <string name="sync_title" translatable="false">Sync email periodically</string>
     <string name="attachment_title" translatable="false">Download incoming attachments</string>
     <string name="attachment_summary_on" translatable="false">Automatically download attachments for incoming emails
@@ -51,4 +50,7 @@
     <string name="title_activity_grammar_panel" translatable="false">GrammarPanel</string>
     <string name="title_activity_mistake_container" translatable="false">MistakeContainer</string>
     <string name="delete_from_mistakes">Delete from mistakes</string>
+    <string name="simple_past_explanation" translatable="false"><![CDATA["Simple Past (Czas Przeszły Prosty)\n\nUżycie: Simple Past używamy, aby opisać zakończone czynności lub sytuacje, które miały miejsce w określonym punkcie w przeszłości.\n\nKonstrukcja:  W zdaniach twierdzących używamy czasownika w formie przeszłej.\nI went to the store. (Poszedłem do sklepu).\n        \n\nW zdaniach pytających używamy operatora did oraz bezokolicznika czasownika.\n        \nPrzykład: Did you finish your homework?\n        \nTłumaczenie: Czy skończyłeś pracę domową?.\n       \nW zdaniach przeczących dodajemy didn't przed bezokolicznikiem czasownika.\n       \nPrzykład: She didn't eat lunch.\n\n        \nTłumaczenie: Ona nie zjadła lunchu. "]]></string>
+    <string name="past_continuous_explanation" translatable="false"><![CDATA[Past Continuous (Czas Przeszły Ciągły)\n\nUżycie: Past Continuous stosujemy, aby opisać działania, które trwały w określonym momencie w przeszłości.\n\nKonstrukcja: Konstruujemy Past Continuous za pomocą czasownika to be w czasie przeszłym (was/were) oraz formy ing czasownika głównego.\n\nPrzykład: They were playing football when it started raining.\n\nTłumaczenie: Oni grali w piłkę, gdy zaczęło padać.]]></string>
+    <string name="present_perfect_explanation" translatable="false"><![CDATA["Present Perfect (Czas Terazniejszy Uzupełniający)\n        \n\nUżycie: Present Perfect używamy, aby opisać czynności, które miały miejsce w przeszłości, ale mają związek z teraźniejszością lub skutkiem w teraźniejszości.\n        \n\nKonstrukcja: Składa się z czasownika to have w formie teraźniejszej (have/has) oraz formy trzeciej czasownika głównego (czasownik w formie przeszłej lub czasownik regularny zakończony na –ed).\n        \n\nPrzykład: I have visited Paris several times.  \n\n: Byłem w Paryżu kilka razy.\n        \n\nMożemy także użyć Present Perfect z partykułą just lub recently, aby podkreślić, że czynność miała miejsce niedawno.\n        \n\nPrzykład: She has just finished her homework.\n        \n\nTłumaczenie: Ona właśnie skończyła pracę domową "]]></string>
 </resources>

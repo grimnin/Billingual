@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import androidx.fragment.app.Fragment
+import com.example.myapplication.FirebaseOperations
 import com.example.myapplication.R
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -27,6 +28,12 @@ class ModifyVerbsFragment : Fragment() {
     private lateinit var editTextTextPerfect: EditText
     private lateinit var buttonAddVerb: Button
     private lateinit var buttonDeleteVerb: Button
+    private lateinit var firebaseOperations: FirebaseOperations
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        firebaseOperations = FirebaseOperations(requireContext())
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -73,6 +80,7 @@ class ModifyVerbsFragment : Fragment() {
         buttonDeleteVerb.setOnClickListener {
             val selectedItem = spinnerDeleteVerbs.selectedItem.toString()
             if (selectedItem != "Add Verb") {
+                firebaseOperations.deleteVerbForAllUsers(selectedItem)
                 deleteVerb(selectedItem)
             } else {
                 // Poinformuj użytkownika, że nie można usunąć czasownika "Add Verb"
@@ -225,6 +233,19 @@ class ModifyVerbsFragment : Fragment() {
             .addOnFailureListener { e ->
                 Log.e(TAG, "Error fetching users", e)
             }
+        val verbsCollectionRef = db.collection("grammar").document("irregular_verbs").collection("verbs")
+
+        // Dodaj nowy dokument do kolekcji irregular_verbs/verbs
+        verbsCollectionRef.document("v$selectedItemId").set(newVerbData)
+            .addOnSuccessListener { documentReference ->
+
+                // Po dodaniu czasownika, ponownie wczytaj dane JSON
+                loadIrregularVerbsFromJson()
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error adding new verb", e)
+            }
+
     }
 
     private fun updateAndUploadJsonFileFromEditTextFields() {

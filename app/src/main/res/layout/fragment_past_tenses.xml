@@ -1,14 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.grammar.PastTenses">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
 
-</FrameLayout>
+    <Spinner
+        android:id="@+id/spinnerExplanation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp" />
+
+    <TextView
+        android:id="@+id/TextViewPastSimpleExplanation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="start|top"
+        android:inputType="textMultiLine"
+        android:text="Simple Past (Czas Przeszły Prosty)\n\nUżycie: Simple Past używamy, aby opisać zakończone czynności lub sytuacje, które miały miejsce w określonym punkcie w przeszłości.\n\nKonstrukcja:  W zdaniach twierdzących używamy czasownika w formie przeszłej.\nI went to the store. (Poszedłem do sklepu).\n\n
+        \n\nW zdaniach pytających używamy operatora &quot;did&quot; oraz bezokolicznika czasownika.\n\n
+        \n\nPrzykład: Did you finish your homework?\n
+        \n\nTłumaczenie: Czy skończyłeś pracę domową?.\n\n
+        \n\nW zdaniach przeczących dodajemy &quot;didn't&quot; przed bezokolicznikiem czasownika.\n\n
+        \n\nPrzykład: She didn't eat lunch.\n
+        \n\nTłumaczenie: Ona nie zjadła lunchu. "
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/TextViewPastContinuesExplanation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="start|top"
+        android:inputType="textMultiLine"
+        android:text="Past Continuous (Czas Przeszły Ciągły)
+\n\nUżycie: Past Continuous stosujemy, aby opisać działania, które trwały w określonym momencie w przeszłości.
+\n\nKonstrukcja: Konstruujemy Past Continuous za pomocą czasownika &quot;to be&quot; w czasie przeszłym (was/were) oraz formy ing czasownika głównego.
+\n\nPrzykład: &quot;They were playing football when it started raining.&quot;
+\n\nTłumaczenie: Oni grali w piłkę, gdy zaczęło padać."
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/TextViewPresentPerfectExplanation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="start|top"
+        android:inputType="textMultiLine"
+        android:text="Present Perfect (Czas Terazniejszy Uzupełniający)
+        \n\nUżycie: Present Perfect używamy, aby opisać czynności, które miały miejsce w przeszłości, ale mają związek z teraźniejszością lub skutkiem w teraźniejszości.
+        \n\nKonstrukcja: Składa się z czasownika &quot;to have&quot; w formie teraźniejszej (have/has) oraz formy trzeciej czasownika głównego (czasownik w formie przeszłej lub czasownik regularny zakończony na –ed).
+        \n\nPrzykład: I have visited Paris several times.  \n\nTłumaczenie: Byłem w Paryżu kilka razy.
+        \n\nMożemy także użyć Present Perfect z partykułą &quot;just&quot; lub &quot;recently&quot;, aby podkreślić, że czynność miała miejsce niedawno.
+        \n\nPrzykład: She has just finished her homework.
+        \n\nTłumaczenie: Ona właśnie skończyła pracę domową "
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/textViewExplanation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/spinnerExplanation"
+        android:layout_marginTop="30dp"
+        android:text="TextView" />
+
+</RelativeLayout>
