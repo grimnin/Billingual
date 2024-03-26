@@ -28,6 +28,9 @@ class MistakeContainer : AppCompatActivity() {
             when (menuItem.itemId) {
                 R.id.Words -> showMistakeFragmentWords()
                 R.id.Verbs -> showMistakeFragmentVerbs()
+                R.id.Tenses -> showMistakeFragmentSentences()
+
+
             }
             true
         }
@@ -46,6 +49,12 @@ class MistakeContainer : AppCompatActivity() {
     private fun showMistakeFragmentVerbs() {
         supportFragmentManager.commit {
             replace<MistakeFragmentVerbs>(R.id.fragmentContainerViewMistake)
+             // Opcjonalnie, jeśli chcesz dodać do cofania transakcji
+        }
+    }
+    private fun showMistakeFragmentSentences() {
+        supportFragmentManager.commit {
+            replace<MistakeFragmentSentence>(R.id.fragmentContainerViewMistake)
              // Opcjonalnie, jeśli chcesz dodać do cofania transakcji
         }
     }

@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.myapplication.fragments.administration.AddWordFragment
+import com.example.myapplication.fragments.administration.ModifySentencesFragment
 import com.example.myapplication.fragments.administration.ModifyVerbsFragment
 import com.example.myapplication.fragments.administration.UserManagementFragment
 
@@ -14,6 +15,7 @@ class AdminPanel : AppCompatActivity() {
     private val usersFragment = UserManagementFragment()
     private val addWordFragment = AddWordFragment()
     private val modifyVerbsFragment=ModifyVerbsFragment()
+    private val modifySentencesFragment=ModifySentencesFragment()
 
     private val onNavigationItemSelectedListener =
         BottomNavigationView.OnNavigationItemSelectedListener { item ->
@@ -29,7 +31,10 @@ class AdminPanel : AppCompatActivity() {
                     replaceFragment(modifyVerbsFragment)
                     return@OnNavigationItemSelectedListener true
                 }
-
+                R.id.navigation_add_tense -> {
+                    replaceFragment(modifySentencesFragment)
+                    return@OnNavigationItemSelectedListener true
+                }
             }
             false
         }

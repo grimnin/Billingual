@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.administration.ModifySentencesFragment">
+
+
+    <Spinner
+        android:id="@+id/spinnerListOfSentences"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp" />
+
+    <TextView
+        android:id="@+id/textViewShowSentence"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/spinnerListOfSentences"
+        android:layout_marginTop="10dp" />
+
+    <EditText
+        android:id="@+id/editTextAddSentence"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/spinnerListOfSentences"
+        android:layout_marginTop="10dp"
+        android:ems="10"
+        android:hint="English"
+        android:inputType="text"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/editTextAddZdanie"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editTextAddSentence"
+        android:layout_marginTop="10dp"
+        android:ems="10"
+        android:hint="Polish"
+        android:inputType="text"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/textViewShowZdanie"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewShowSentence"
+        android:layout_marginTop="10dp" />
+
+    <Button
+        android:id="@+id/buttonAddSentence"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/spinnerListOfTenses"
+        android:layout_marginTop="10dp"
+        android:text="Add sentence"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/buttonDeleteSentence"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewShowZdanie"
+        android:layout_marginTop="10dp"
+        android:text="Delete sentence"
+        android:visibility="visible" />
+
+    <Spinner
+        android:id="@+id/spinnerListOfTenses"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editTextAddZdanie"
+        android:layout_marginTop="10dp"
+        android:visibility="gone" />
+</RelativeLayout>

@@ -401,6 +401,57 @@ class FirebaseOperations(private val context: Context) {
         }
     }
 
+    fun deleteSentenceForAllUsers(sentenceId: String) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Reference to the 'users' collection
+        val usersCollectionRef = db.collection("users")
+
+        // Reference to the 'grammar/tenses/sentences' collection
+        val sentencesCollectionRef = db.collection("grammar")
+            .document("tenses")
+            .collection("sentences")
+
+        // Delete the sentence document from 'grammar/tenses/sentences'
+        sentencesCollectionRef.document(sentenceId).delete()
+            .addOnSuccessListener {
+                Log.d("FirebaseOperations", "Sentence deleted from 'grammar/tenses/sentences'")
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirebaseOperations", "Error deleting sentence from 'grammar/tenses/sentences'", e)
+            }
+
+        // Get all users
+        usersCollectionRef.get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    val userId = document.id
+
+                    // Reference to the sentences collection for the user
+                    val sentencesRef = usersCollectionRef
+                        .document(userId)
+                        .collection("stats")
+                        .document("grammar_stats")
+                        .collection("grammar")
+                        .document("tenses")
+                        .collection("sentences")
+
+                    // Delete the sentence document for the user
+                    sentencesRef.document(sentenceId).delete()
+                        .addOnSuccessListener {
+                            Log.d("FirebaseOperations", "Sentence deleted for user: $userId")
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.e("FirebaseOperations", "Error deleting sentence for user: $userId", exception)
+                        }
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("FirebaseOperations", "Error getting users for deleting sentence", exception)
+            }
+    }
+
+
     fun getRandomSentences(callback: (List<Sentence>) -> Unit) {
         val user = auth.currentUser
         if (user != null) {
@@ -480,8 +531,133 @@ class FirebaseOperations(private val context: Context) {
 
 
 
+    fun getSentencesWithMistakes(callback: (List<Sentence>) -> Unit) {
+        val user = auth.currentUser
+        if (user != null) {
+            val userId = user.uid
+            val userDocRef = db.collection("users").document(userId)
+            val grammarStatsDocRef = userDocRef.collection("stats")
+                .document("grammar_stats")
+                .collection("grammar")
+                .document("tenses")
+                .collection("sentences") // Access the "sentences" subcollection
 
+            grammarStatsDocRef.whereEqualTo("madeMistake", true).get().addOnSuccessListener { documents ->
+                val sentences = mutableListOf<Sentence>()
+                for (document in documents) {
+                    val data = document.data
+                    val sentence = data["sentence"] as? String ?: ""
+                    val zdanie = data["zdanie"] as? String ?: ""
+                    val tense = data["tense"] as? String ?: ""
+                    val id = document.id
+                    val correctAnswers = (data["correctAnswers"] as? Long)?.toInt() ?: 0
+                    val wrongAnswers = (data["wrongAnswers"] as? Long)?.toInt() ?: 0
+                    val madeMistake = data["madeMistake"] as? Boolean ?: false
 
+                    val sentenceObject = Sentence(sentence, zdanie, tense, id, correctAnswers, wrongAnswers, madeMistake)
+                    sentences.add(sentenceObject)
+                }
+                callback(sentences)
+            }.addOnFailureListener { exception ->
+                // Handle failure
+                callback(emptyList())
+            }
+        } else {
+            // User is not logged in
+            callback(emptyList())
+        }
+    }
+
+    fun addSentenceForAllUsers(sentence: String, zdanie: String, tense: String, id: String) {
+        // Get reference to the 'users' collection
+        val usersCollectionRef = db.collection("users")
+
+        // Get reference to the 'grammar/tenses/sentences' collection
+        val sentencesCollectionRef = db.collection("grammar")
+            .document("tenses")
+            .collection("sentences")
+
+        // Create data for the sentence
+        val sentenceData = hashMapOf(
+            "sentence" to sentence,
+            "zdanie" to zdanie,
+            "tense" to tense,
+            "id" to id,
+            "correctAnswers" to 0,
+            "wrongAnswers" to 0,
+            "madeMistake" to false
+        )
+
+        // Add sentence to 'grammar/tenses/sentences' collection
+        sentencesCollectionRef.document(id)
+            .set(sentenceData)
+            .addOnSuccessListener {
+                Log.d("FirebaseOperations", "Sentence added to 'grammar/tenses/sentences'")
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirebaseOperations", "Error adding sentence to 'grammar/tenses/sentences'", e)
+            }
+
+        // Get all users
+        usersCollectionRef.get()
+            .addOnSuccessListener { users ->
+                for (user in users) {
+                    val userId = user.id
+
+                    // Document reference for the 'grammar_stats' document for the current user
+                    val grammarStatsDocRef = db.collection("users").document(userId)
+                        .collection("stats").document("grammar_stats")
+                        .collection("grammar").document("tenses")
+                        .collection("sentences").document(id)
+
+                    // Set the data in the document
+                    grammarStatsDocRef.set(sentenceData)
+                        .addOnSuccessListener {
+                            Log.d("FirebaseOperations", "Sentence added for user: $userId")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("FirebaseOperations", "Error adding sentence for user: $userId", e)
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirebaseOperations", "Error getting users for adding sentence", e)
+            }
+    }
+
+    fun updateMistakeSentenceStatus(sentenceId: String) {
+        // Pobierz aktualnie zalogowanego użytkownika
+        val currentUser = FirebaseAuth.getInstance().currentUser
+
+        // Sprawdź, czy użytkownik jest zalogowany
+        currentUser?.let { user ->
+            // Pobierz identyfikator aktualnie zalogowanego użytkownika
+            val userId = user.uid
+
+            // Odniesienie do kolekcji "sentences" w bazie danych
+            val sentencesCollectionRef = db.collection("users")
+                .document(userId)
+                .collection("stats")
+                .document("grammar_stats")
+                .collection("grammar")
+                .document("tenses")
+                .collection("sentences")
+
+            // Odniesienie do konkretnego dokumentu reprezentującego zdanie
+            val sentenceDocRef = sentencesCollectionRef.document(sentenceId)
+
+            // Aktualizacja pola "madeMistake" na wartość false
+            sentenceDocRef.update("madeMistake", false)
+                .addOnSuccessListener {
+                    // Obsługa sukcesu
+                    Log.d("FirebaseOperations", "Mistake status updated for sentence: $sentenceId")
+                }
+                .addOnFailureListener { e ->
+                    // Obsługa błędu
+                    Log.e("FirebaseOperations", "Error updating mistake status for sentence: $sentenceId", e)
+                }
+        }
+    }
 
 
 }
