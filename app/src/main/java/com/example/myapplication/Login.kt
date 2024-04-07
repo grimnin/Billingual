@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -13,8 +12,9 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import com.example.myapplication.utils.ConfigurationHelper
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -23,9 +23,8 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
-import java.util.Locale
 
-class Login : ComponentActivity() {
+class Login : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var googleSignUp: TextView
     private lateinit var client: GoogleSignInClient
@@ -34,26 +33,18 @@ class Login : ComponentActivity() {
 
     private lateinit var sharedPreferences: SharedPreferences
 
-    override fun onRestart() {
-        setConnfiguration()
-        super.onRestart()
-
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
-
-        setConnfiguration()
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.login)
-        // Odczytaj preferencje językowe
+        ConfigurationHelper.setConfiguration(this) // Ustawianie konfiguracji
 
+        setContentView(R.layout.login)
 
         auth = FirebaseAuth.getInstance()
+        sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
 
-         sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         val userEmail = sharedPreferences.getString("userEmail", null)
 
-        if (auth.currentUser != null && userEmail != null|| auth.currentUser?.isEmailVerified == true) {
+        if (auth.currentUser != null && userEmail != null || auth.currentUser?.isEmailVerified == true) {
             showToast("User already logged in.")
             navigateToMainActivity()
             return
@@ -89,7 +80,6 @@ class Login : ComponentActivity() {
         val loginButton: Button = findViewById(R.id.buttonLoginL)
         loginButton.setOnClickListener {
             preformLogin()
-
         }
 
         val confirmButtonG: Button = findViewById(R.id.buttonNickG)
@@ -150,12 +140,11 @@ class Login : ComponentActivity() {
                     //FirebaseOperations(this).copyAnimalDocument(auth.currentUser?.uid ?: "")
                 } else {
                     navigateToMainActivity()
-                   // FirebaseOperations(this).updateUsersScore(auth.currentUser?.uid ?: "")
+                    // FirebaseOperations(this).updateUsersScore(auth.currentUser?.uid ?: "")
                 }
             }
         }
     }
-
 
     private fun showGoogleSignInUI() {
         textViewGoogleNick.visibility = View.VISIBLE
@@ -167,7 +156,6 @@ class Login : ComponentActivity() {
         findViewById<TextView>(R.id.textViewForgotPassword).visibility = View.GONE
         findViewById<TextView>(R.id.textViewLoginText).visibility = View.GONE
         findViewById<ImageView>(R.id.imageView3).visibility = View.GONE
-
     }
 
     private fun handleConfirmButton() {
@@ -196,7 +184,6 @@ class Login : ComponentActivity() {
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
         finish()
-
     }
 
     private fun preformLogin() {
@@ -259,7 +246,6 @@ class Login : ComponentActivity() {
     }
 
     private fun saveLoginToSharedPreferences(userEmail: String) {
-         sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         editor.putString("userEmail", userEmail)
         editor.apply()
@@ -283,29 +269,5 @@ class Login : ComponentActivity() {
             .addOnFailureListener { e ->
                 showToast("Error creating user document: ${e.localizedMessage}")
             }
-    }
-    private fun setLocale(languageCode: String) {
-        val locale = Locale(languageCode)
-        Locale.setDefault(locale)
-        val configuration = Configuration()
-        configuration.setLocale(locale)
-        baseContext.resources.updateConfiguration(configuration, baseContext.resources.displayMetrics)
-    }
-
-    private fun loadLanguageFromSharedPreferences(): String {
-         sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-        return sharedPreferences.getString("language", getString(R.string.default_language_code)) ?: getString(R.string.default_language_code)
-    }
-    private fun setConnfiguration(){
-        sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-        setLocale(loadLanguageFromSharedPreferences())
-        val isDarkModeEnabled = sharedPreferences.getBoolean("darkModeEnabled", false)
-
-        // Ustaw odpowiedni styl w zależności od trybu ciemnego
-        if (isDarkModeEnabled) {
-            setTheme(R.style.AppTheme_Dark)
-        } else {
-            setTheme(R.style.AppTheme_Light)
-        }
     }
 }

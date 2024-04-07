@@ -11,7 +11,6 @@
         android:id="@+id/baseTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#F44336"
         android:gravity="center"
         android:textAppearance="?android:textAppearanceMedium"
         android:textStyle="bold" />
@@ -20,42 +19,36 @@
         android:id="@+id/pastSimpleTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#F44336"
         android:gravity="center" />
 
     <TextView
         android:id="@+id/pastParticipleTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#F44336"
         android:gravity="center" />
 
     <TextView
         android:id="@+id/meaningTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#F44336"
         android:gravity="center" />
 
     <TextView
         android:id="@+id/correctAnswersTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#F44336"
         android:gravity="center" />
 
     <TextView
         android:id="@+id/wrongAnswersTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#F44336"
         android:gravity="center" />
 
     <TextView
         android:id="@+id/madeMistakeTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#F44336"
         android:gravity="center" />
 
     <LinearLayout

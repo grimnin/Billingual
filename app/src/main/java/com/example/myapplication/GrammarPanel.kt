@@ -1,8 +1,6 @@
 package com.example.myapplication
 
-import android.content.Context
 import android.content.SharedPreferences
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -12,8 +10,8 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.myapplication.fragments.grammar.IrregularVerbsFragment
 import com.example.myapplication.fragments.grammar.PastTenses
 import com.example.myapplication.fragments.grammar.TestYourself
+import com.example.myapplication.utils.ConfigurationHelper
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import java.util.Locale
 
 class GrammarPanelActivity : AppCompatActivity() {
 
@@ -22,7 +20,7 @@ class GrammarPanelActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setConnfiguration()
+        ConfigurationHelper.setConfiguration(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.grammar_panel)
 
@@ -68,29 +66,6 @@ class GrammarPanelActivity : AppCompatActivity() {
         private const val NUM_PAGES = 3 // Ilość fragmentów
     }
 
-    private fun setLocale(languageCode: String) {
-        val locale = Locale(languageCode)
-        Locale.setDefault(locale)
-        val configuration = Configuration()
-        configuration.setLocale(locale)
-        baseContext.resources.updateConfiguration(configuration, baseContext.resources.displayMetrics)
-    }
 
-    private fun loadLanguageFromSharedPreferences(): String {
-        sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-        return sharedPreferences.getString("language", getString(R.string.default_language_code)) ?: getString(R.string.default_language_code)
-    }
-    private fun setConnfiguration(){
-        sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-        setLocale(loadLanguageFromSharedPreferences())
-        val isDarkModeEnabled = sharedPreferences.getBoolean("darkModeEnabled", false)
-
-        // Ustaw odpowiedni styl w zależności od trybu ciemnego
-        if (isDarkModeEnabled) {
-            setTheme(R.style.AppTheme_Dark)
-        } else {
-            setTheme(R.style.AppTheme_Light)
-        }
-    }
 
 }

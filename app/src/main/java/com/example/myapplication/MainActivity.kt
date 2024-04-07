@@ -3,7 +3,6 @@ package com.example.myapplication
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -13,13 +12,13 @@ import com.example.myapplication.fragments.mistakes.MistakeFragmentWords
 import com.example.myapplication.fragments.quiz.QuizFragment
 import com.example.myapplication.fragments.rank.Rank
 import com.example.myapplication.fragments.settings.SettingsFragment
+import com.example.myapplication.utils.ConfigurationHelper
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
-import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -29,21 +28,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        ConfigurationHelper.setConfiguration(this) // Ustawianie konfiguracji
 
         super.onCreate(savedInstanceState)
-        // Odczytaj preferencje językowe
-        val languageCode = loadLanguageFromSharedPreferences()
 
-        // Zastosuj wybraną lokalizację
-        setLocale(languageCode)
-        val isDarkModeEnabled = sharedPreferences.getBoolean("darkModeEnabled", false)
-
-        // Ustaw odpowiedni styl w zależności od trybu ciemnego
-        if (isDarkModeEnabled) {
-            setTheme(R.style.AppTheme_Dark)
-        } else {
-            setTheme(R.style.AppTheme_Light)
-        }
         setContentView(R.layout.main_activity)
         googleSignInClient = GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_SIGN_IN)
         auth = FirebaseAuth.getInstance()
@@ -112,18 +100,6 @@ class MainActivity : AppCompatActivity() {
         val alert = builder.create()
         alert.show()
     }
-
-    private fun setLocale(languageCode: String) {
-        val locale = Locale(languageCode)
-        Locale.setDefault(locale)
-        val configuration = Configuration()
-        configuration.setLocale(locale)
-        baseContext.resources.updateConfiguration(configuration, baseContext.resources.displayMetrics)
-    }
-
-    private fun loadLanguageFromSharedPreferences(): String {
-        val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-        return sharedPreferences.getString("language", getString(R.string.default_language_code)) ?: getString(R.string.default_language_code)
-    }
 }
+
 

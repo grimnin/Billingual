@@ -256,20 +256,13 @@ class QuizFragment : Fragment() {
                                         val currentMistakeCounter = snapshot.getLong("mistakeCounter") ?: 0
                                         var madeMistake = snapshot.getBoolean("madeMistake") ?: false
                                         val currentTotal = snapshot.getLong("total") ?: 0
-
-                                        // Jeśli wystąpił błąd, ustaw flagę madeMistake na true
                                         if (!isCorrect) {
                                             madeMistake = true
                                         }
-
-                                        // Jeśli wylosowane słowo ma madeMistake ustawione na true
-                                        // i liczba correctCount jest o 3 większa od mistakeCounter,
-                                        // ustaw madeMistake na false
                                         if (madeMistake && currentCorrectCount >= currentMistakeCounter + 3) {
                                             madeMistake = false
                                         }
                                             updateScore(isCorrect)
-                                        // Aktualizacja statystyk słowa
                                         transaction.update(wordRef, "total", currentTotal + 1)
                                         transaction.update(wordRef, "madeMistake", madeMistake)
                                         if (isCorrect) {

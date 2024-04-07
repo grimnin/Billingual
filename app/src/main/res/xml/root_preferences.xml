@@ -21,14 +21,6 @@
             android:title="@string/log_out"
             app:key="logout" />
 
-        <ListPreference
-            app:defaultValue="reply"
-            app:entries="@array/reply_entries"
-            app:entryValues="@array/reply_values"
-            app:key="reply"
-            app:title="@string/reply_title"
-            app:useSimpleSummaryProvider="true" />
-
     </PreferenceCategory>
 
     <PreferenceCategory app:title="Theme">
@@ -37,18 +29,20 @@
             app:key="darkMode"
             app:title="@string/switch_to_dark_mode" />
 
-        <SwitchPreferenceCompat
-            app:dependency="darkMode"
-            app:key="attachment"
-            app:summaryOff="@string/attachment_summary_off"
-            app:summaryOn="@string/attachment_summary_on"
-            app:title="@string/attachment_title" />
+        
 
     </PreferenceCategory>
     <PreferenceCategory app:title="@string/actions">
 
         <!-- Add a preference for back button -->
 
+        <ListPreference
+            app:defaultValue="reply"
+            app:entries="@array/reply_entries"
+            app:entryValues="@array/reply_values"
+            app:key="reply"
+            app:title="@string/reply_title"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
 
