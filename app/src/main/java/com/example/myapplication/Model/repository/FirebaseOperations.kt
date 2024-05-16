@@ -659,6 +659,49 @@ class FirebaseOperations(private val context: Context) {
         }
     }
 
+    fun updateMadeMistakeValue(wordId: String, wordAng: String, newValue: Boolean) {
+        val firestore = FirebaseFirestore.getInstance()
+        val currentUser = FirebaseAuth.getInstance().currentUser
+
+        currentUser?.let { user ->
+            val userId = user.uid
+
+
+
+            wordAng?.let { wordAng ->
+                firestore.collection("users").document(userId)
+                    .collection("stats").document("word_stats")
+                    .collection("categories")
+                    .get()
+                    .addOnSuccessListener { categories ->
+                        categories.forEach { category ->
+                            val categoryId = category.id
+                            firestore.collection("users").document(userId)
+                                .collection("stats").document("word_stats")
+                                .collection("categories").document(categoryId)
+                                .collection("words")
+                                .whereEqualTo("eng", wordAng) // Pobierz dokumenty, których pole "eng" nie jest równe "englishTranslation"
+                                .get()
+                                .addOnSuccessListener { words ->
+                                    words.forEach { word ->
+                                        word.reference.update("madeMistake", newValue)
+                                            .addOnSuccessListener {
+                                            }
+                                            .addOnFailureListener { e ->
+                                                // Nie udało się zaktualizować wartości
+                                                // Tutaj możesz dodać obsługę błędów
+                                            }
+                                    }
+                                }
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        // Obsługa błędów podczas pobierania dokumentów
+                    }
+            }
+        }
+    }
+
 
 }
 
