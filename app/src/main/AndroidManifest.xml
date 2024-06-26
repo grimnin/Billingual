@@ -23,7 +23,9 @@
             android:name=".View.panels.GrammarPanelActivity"
             android:exported="false"
             android:label="@string/title_activity_grammar_panel"
-            android:theme="@style/Theme.MyApplication.AppCompat" />
+            android:theme="@style/Theme.MyApplication.AppCompat"
+            android:screenOrientation="portrait"
+            />
 
         <activity
             android:name=".View.authorization.Register"

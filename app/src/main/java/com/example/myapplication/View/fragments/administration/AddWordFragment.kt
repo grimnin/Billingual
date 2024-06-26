@@ -1,7 +1,6 @@
 package com.example.myapplication.View.fragments.administration
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -190,23 +189,33 @@ class AddWordFragment : Fragment() {
     private fun setupButton() {
         buttonAddWord.setOnClickListener {
             addWordToFirestore()
+            setupSpinner()
+            setupSpinnerChooseCategoryToDelete()
         }
 
         buttonDeleteWord.setOnClickListener {
             val selectedCategory = spinnerCategoryDelete.selectedItem.toString()
-             selectedWord = spinnerWord?.selectedItem.toString()
-            Log.d("WordToDelete","${!selectedCategory.isNullOrBlank() && spinnerWord.selectedItem.toString().isNullOrBlank()}")
+
+            selectedWord = spinnerWord?.selectedItem?.toString() ?: ""
+
+            // Sprawdź, czy lista słów jest pusta
+            if (spinnerWord.adapter == null || spinnerWord.adapter.isEmpty) {
+                Toast.makeText(requireContext(), "No words available to delete", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
             // Sprawdź, czy wybrano kategorię i słowo
-            if (!selectedCategory.isNullOrBlank() && !spinnerWord.selectedItem.toString().isNullOrBlank()) {
+            if (!selectedCategory.isNullOrBlank() && selectedWord.isNotBlank()) {
                 // Usuń dokument dotyczący słowa dla każdego użytkownika
-                firebaseOperations.deleteWordForAllUsers(selectedCategory, "word"+(spinnerWord.selectedItemPosition+1))
+                firebaseOperations.deleteWordForAllUsers(selectedCategory, "word${spinnerWord.selectedItemPosition + 1}")
                 deleteWordFromJson(selectedCategory, selectedWord)
+                fetchWordsForCategory(selectedCategory)
             } else {
                 // Komunikat o błędzie, jeśli kategoria lub słowo nie zostały wybrane
                 Toast.makeText(requireContext(), "Please select a category and a word to delete", Toast.LENGTH_SHORT).show()
             }
         }
+
     }
 
 
@@ -312,6 +321,7 @@ class AddWordFragment : Fragment() {
                     .addOnSuccessListener {
                         // Notification of success
                         Toast.makeText(requireContext(), "Category added successfully!", Toast.LENGTH_SHORT).show()
+
                     }
                     .addOnFailureListener { e ->
                         // Handle error
@@ -405,16 +415,16 @@ class AddWordFragment : Fragment() {
                                         newWordDocRef.set(newWordData)
                                             .addOnSuccessListener {
                                                 // Notification of success
-                                                Toast.makeText(requireContext(), "User document updated successfully!", Toast.LENGTH_SHORT).show()
+                                                //Toast.makeText(requireContext(), "User document updated successfully!", Toast.LENGTH_SHORT).show()
                                             }
                                             .addOnFailureListener { e ->
                                                 // Handle error adding new word in category
-                                                Toast.makeText(requireContext(), "Error adding word in category: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                //Toast.makeText(requireContext(), "Error adding word in category: ${e.message}", Toast.LENGTH_SHORT).show()
                                             }
                                     }
                                     .addOnFailureListener { e ->
                                         // Handle error creating/updating category document
-                                        Toast.makeText(requireContext(), "Error creating/updating category: ${e.message}", Toast.LENGTH_SHORT).show()
+                                       // Toast.makeText(requireContext(), "Error creating/updating category: ${e.message}", Toast.LENGTH_SHORT).show()
                                     }
                             } else {
                                 // If stats/word_stats document doesn't exist, create it
@@ -439,7 +449,7 @@ class AddWordFragment : Fragment() {
                                                 newWordDocRef.set(newWordData)
                                                     .addOnSuccessListener {
                                                         // Notification of success
-                                                        Toast.makeText(requireContext(), "User document updated successfully!", Toast.LENGTH_SHORT).show()
+                                                        //Toast.makeText(requireContext(), "User document updated successfully!", Toast.LENGTH_SHORT).show()
                                                     }
                                                     .addOnFailureListener { e ->
                                                         // Handle error adding new word in category
