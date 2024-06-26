@@ -32,9 +32,9 @@
 
                 <ImageView
                     android:id="@+id/Quiz_Image"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="150dp"
-                    android:src="@drawable/quiz_icon" />
+                    android:src="@drawable/quiz" />
 
                 <TextView
                     android:id="@+id/Quiz_texView"
@@ -52,9 +52,9 @@
 
                 <ImageView
                     android:id="@+id/Gramatic_Image"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="150dp"
-                    android:src="@drawable/quiz_icon" />
+                    android:src="@drawable/grammar" />
 
                 <TextView
                     android:id="@+id/Gramatic_TextView"
@@ -79,9 +79,9 @@
 
                 <ImageView
                     android:id="@+id/Mistakes_Image"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="150dp"
-                    android:src="@drawable/quiz_icon" />
+                    android:src="@drawable/error" />
 
                 <TextView
                     android:id="@+id/Mistakes_texView"
@@ -99,9 +99,9 @@
 
                 <ImageView
                     android:id="@+id/Rankings_Image"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="150dp"
-                    android:src="@drawable/quiz_icon" />
+                    android:src="@drawable/ranking" />
 
                 <TextView
                     android:id="@+id/Rankings_TextView"
@@ -124,9 +124,9 @@
 
                 <ImageView
                     android:id="@+id/Settings_Image"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="150dp"
-                    android:src="@drawable/quiz_icon" />
+                    android:src="@drawable/newer_settings" />
 
                 <TextView
                     android:id="@+id/Settings_texView"
@@ -144,9 +144,9 @@
 
                 <ImageView
                     android:id="@+id/Admin_Image"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="150dp"
-                    android:src="@drawable/quiz_icon"
+                    android:src="@drawable/admin"
                     tools:visibility="gone" />
 
                 <TextView

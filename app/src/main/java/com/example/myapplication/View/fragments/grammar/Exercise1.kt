@@ -104,9 +104,20 @@ class Exercise1Fragment : Fragment() {
                     // Włącz przycisk submit ponownie
                     isSubmitEnabled = true
                     buttonSubmit.isEnabled = true
-                    baseEditText.setTextColor(ContextCompat.getColor(requireContext(),  R.color.black ))
-                    pastSimpleEditText.setTextColor(ContextCompat.getColor(requireContext(),  R.color.black ))
-                    pastPerfectEditText.setTextColor(ContextCompat.getColor(requireContext(),  R.color.black ))
+                    baseEditText.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+                    pastSimpleEditText.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+                    pastPerfectEditText.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+
+                    // Pobranie nowych słówek na nowo
+                    auth.currentUser?.uid?.let {
+                        firebaseOperations.getRandomVerbs(it) { verbs ->
+                            verbsList = verbs
+                            tableLayout.removeAllViews()
+                            verbs.forEach { newVerb ->
+                                addRowToTableLayout(tableLayout, newVerb)
+                            }
+                        }
+                    }
                 }, 2000)
 
                 if (isBaseCorrect && isPastSimpleCorrect && isPastPerfectCorrect) {
@@ -121,6 +132,7 @@ class Exercise1Fragment : Fragment() {
             score = 0
         }
     }
+
 
 
 

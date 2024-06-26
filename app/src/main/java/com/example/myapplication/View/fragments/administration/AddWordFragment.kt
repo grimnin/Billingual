@@ -1,6 +1,7 @@
 package com.example.myapplication.View.fragments.administration
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,7 @@ import com.example.myapplication.R
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 
 class AddWordFragment : Fragment() {
@@ -193,11 +195,13 @@ class AddWordFragment : Fragment() {
         buttonDeleteWord.setOnClickListener {
             val selectedCategory = spinnerCategoryDelete.selectedItem.toString()
              selectedWord = spinnerWord?.selectedItem.toString()
+            Log.d("WordToDelete","${!selectedCategory.isNullOrBlank() && spinnerWord.selectedItem.toString().isNullOrBlank()}")
 
             // Sprawdź, czy wybrano kategorię i słowo
-            if (!selectedCategory.isNullOrBlank() && spinnerWord.isSelected) {
+            if (!selectedCategory.isNullOrBlank() && !spinnerWord.selectedItem.toString().isNullOrBlank()) {
                 // Usuń dokument dotyczący słowa dla każdego użytkownika
                 firebaseOperations.deleteWordForAllUsers(selectedCategory, "word"+(spinnerWord.selectedItemPosition+1))
+                deleteWordFromJson(selectedCategory, selectedWord)
             } else {
                 // Komunikat o błędzie, jeśli kategoria lub słowo nie zostały wybrane
                 Toast.makeText(requireContext(), "Please select a category and a word to delete", Toast.LENGTH_SHORT).show()
@@ -471,7 +475,7 @@ class AddWordFragment : Fragment() {
             .get()
             .addOnSuccessListener { result ->
                 for (document in result) {
-                    val word = document.getString("eng")
+                    val word = document.getString("pl")
                     word?.let { words.add(it) }
                 }
 
@@ -484,4 +488,89 @@ class AddWordFragment : Fragment() {
                 Toast.makeText(requireContext(), "Error fetching words: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
     }
+    private fun deleteWordFromJson(category: String, wordPl: String) {
+        val storageFileRef = storageRef.child(jsonFilePath)
+        storageFileRef.getBytes(1024 * 1024) // maximum size in bytes
+            .addOnSuccessListener { bytes ->
+                val jsonString = String(bytes)
+
+                try {
+                    // Parse existing JSON
+                    val jsonObject = JSONObject(jsonString)
+
+                    // Check if the category exists
+                    if (jsonObject.has("categories")) {
+                        val categoriesObject = jsonObject.getJSONObject("categories")
+
+                        if (categoriesObject.has(category)) {
+                            val categoryObject = categoriesObject.getJSONObject(category)
+                            val wordsArray = categoryObject.getJSONArray("words")
+
+                            // Find and remove the word from the words array
+                            var wordFound = false
+                            for (i in 0 until wordsArray.length()) {
+                                val wordObject = wordsArray.getJSONObject(i)
+                                if (wordObject.getString("pl") == wordPl) {
+                                    wordsArray.remove(i)
+                                    wordFound = true
+                                    break
+                                }
+                            }
+
+                            if (wordFound) {
+                                // Replace the old words array with the new one
+                                categoryObject.put("words", wordsArray)
+                                categoriesObject.put(category, categoryObject)
+                                jsonObject.put("categories", categoriesObject)
+
+                                // Upload the updated JSON file back to Firebase Storage
+                                uploadJsonToStorage(jsonObject.toString().toByteArray())
+                                Toast.makeText(requireContext(), "Word deleted successfully", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(requireContext(), "Word not found in the selected category "+selectedWord, Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            Toast.makeText(requireContext(), "Category not found in JSON", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        Toast.makeText(requireContext(), "Invalid JSON format", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: JSONException) {
+                    Toast.makeText(requireContext(), "JSON Parsing error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { exception ->
+                // Handle error fetching JSON file from Firebase Storage
+                Toast.makeText(requireContext(), "Error fetching JSON from storage: ${exception.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+
+
+
+    private fun JSONArray.iterator(): MutableIterator<Any> {
+        return object : MutableIterator<Any> {
+            private var index = 0
+            override fun hasNext(): Boolean = index < this@iterator.length()
+            override fun next(): Any = this@iterator.get(index++)
+            override fun remove() {
+                val jsonArray = JSONArray()
+                for (i in 0 until this@iterator.length()) {
+                    if (i != index - 1) {
+                        jsonArray.put(this@iterator.get(i))
+                    }
+                }
+                (this@iterator as JSONArray).apply {
+                    for (i in 0 until jsonArray.length()) {
+                        this.put(i, jsonArray.get(i))
+                    }
+                    for (i in jsonArray.length() until this.length()) {
+                        this.remove(jsonArray.length())
+                    }
+                }
+                index--
+            }
+        }
+    }
+
 }

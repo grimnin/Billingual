@@ -1,6 +1,7 @@
 package com.example.myapplication.View.fragments.grammar
 
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -94,6 +95,7 @@ class Exercise2Fragment : Fragment() {
 
         val colorCorrect = ContextCompat.getColor(requireContext(), R.color.correctColor)
         val colorIncorrect = ContextCompat.getColor(requireContext(), R.color.incorrectColor)
+        val colorDefault = ContextCompat.getColor(requireContext(), R.color.black)
 
         if (answer1.equals(correctAnswer1, ignoreCase = true)) {
             editTextInput1.setBackgroundColor(colorCorrect)
@@ -112,7 +114,36 @@ class Exercise2Fragment : Fragment() {
         } else {
             editTextInput3.setBackgroundColor(colorIncorrect)
         }
-        firebaseOperations.updateSentenceStats( sentences, answers)
+
+        firebaseOperations.updateSentenceStats(sentences, answers)
+
+        val handler = Handler()
+        handler.postDelayed({
+            editTextInput1.setText("")
+            editTextInput2.setText("")
+            editTextInput3.setText("")
+
+            editTextInput1.setBackgroundColor(colorDefault)
+            editTextInput2.setBackgroundColor(colorDefault)
+            editTextInput3.setBackgroundColor(colorDefault)
+
+            // Pobranie nowych zdań na nowo
+            firebaseOperations.getRandomSentences { newSentences ->
+                if (newSentences.isNotEmpty()) {
+                    if (newSentences.size >= 3) {
+                        textViewSentence1.text = newSentences[0].zdanie
+                        textViewSentence2.text = newSentences[1].zdanie
+                        textViewSentence3.text = newSentences[2].zdanie
+                    } else {
+                        // Handle case when there are fewer than 3 sentences
+                        // For example, display a message indicating insufficient sentences
+                    }
+                } else {
+                    // Handle case when sentences list is empty
+                    // For example, display a message indicating no sentences available
+                }
+            }
+        }, 2000)
     }
 
 }
